@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Art Studio</title>
+    <title>Komik Hesap Makinesi</title>
     <style>
         * {
             margin: 0;
@@ -12,206 +12,17 @@
         }
 
         body {
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             min-height: 100vh;
-            overflow: hidden;
-        }
-
-        .container {
-            display: flex;
-            height: 100vh;
-            backdrop-filter: blur(20px);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .toolbar {
-            width: 80px;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(20px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
-            gap: 15px;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .tool {
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tool:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .tool.active {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
-            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
-        }
-
-        .tool::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .tool:hover::before {
-            left: 100%;
-        }
-
-        .main-area {
-            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 40px;
-            position: relative;
-        }
-
-        .canvas-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            position: relative;
             overflow: hidden;
-        }
-
-        .canvas-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #fef65b);
-            border-radius: 20px 20px 0 0;
-        }
-
-        .canvas {
-            display: grid;
-            grid-template-columns: repeat(16, 1fr);
-            gap: 2px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 10px;
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .pixel {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0, 0, 0, 0.05);
             position: relative;
         }
 
-        .pixel:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            z-index: 10;
-        }
-
-        .color-palette {
-            width: 300px;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(20px);
-            padding: 30px;
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .palette-title {
-            color: white;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .colors {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-
-        .color {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .color:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .color.selected {
-            border-color: #fff;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-        }
-
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .control-btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .control-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .control-btn:active {
-            transform: translateY(0);
-        }
-
-        .floating-particles {
+        .floating-emojis {
             position: absolute;
             top: 0;
             left: 0;
@@ -221,328 +32,786 @@
             overflow: hidden;
         }
 
-        .particle {
+        .emoji {
             position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            animation: float 6s infinite ease-in-out;
+            font-size: 2rem;
+            animation: floatEmoji 8s infinite ease-in-out;
+            opacity: 0.7;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-10px) rotate(360deg); opacity: 0; }
+        @keyframes floatEmoji {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
         }
 
-        .brush-size {
+        .calculator {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+            max-width: 400px;
+            width: 100%;
+            animation: calculatorWiggle 4s infinite ease-in-out;
+        }
+
+        @keyframes calculatorWiggle {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(1deg) scale(1.02); }
+            50% { transform: rotate(0deg) scale(1); }
+            75% { transform: rotate(-1deg) scale(1.02); }
+        }
+
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #fef65b, #ff9ff3);
+            border-radius: 30px 30px 0 0;
+            animation: rainbowShift 3s infinite;
+        }
+
+        @keyframes rainbowShift {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .calculator-face {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 3rem;
+            animation: faceChange 5s infinite;
+        }
+
+        @keyframes faceChange {
+            0%, 20% { content: '😊'; }
+            20%, 40% { content: '🤓'; }
+            40%, 60% { content: '😎'; }
+            60%, 80% { content: '🤖'; }
+            80%, 100% { content: '😄'; }
+        }
+
+        .display {
+            background: linear-gradient(135deg, #2d3436, #636e72);
+            color: #00ff00;
+            font-size: 2.5rem;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: right;
+            min-height: 80px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: flex-end;
+            font-family: 'Courier New', monospace;
+            box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #00ff00;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+            animation: scanline 2s infinite;
+        }
+
+        @keyframes scanline {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .display-value {
+            text-shadow: 0 0 10px #00ff00;
+            animation: textGlow 2s infinite alternate;
+        }
+
+        @keyframes textGlow {
+            from { text-shadow: 0 0 10px #00ff00; }
+            to { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00; }
+        }
+
+        .comment {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6b6b;
             color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
         }
 
-        .size-slider {
-            flex: 1;
-            height: 4px;
-            border-radius: 2px;
-            background: rgba(255, 255, 255, 0.2);
-            outline: none;
-            appearance: none;
+        .comment::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: #ff6b6b;
         }
 
-        .size-slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        .comment.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .btn {
+            height: 70px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.5);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+            font-family: 'Comic Sans MS', cursive;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .btn:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.95) rotate(-5deg);
+        }
+
+        .btn-number {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.4);
+        }
+
+        .btn-operator {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+            box-shadow: 0 5px 15px rgba(253, 121, 168, 0.4);
+        }
+
+        .btn-special {
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+            color: white;
+            box-shadow: 0 5px 15px rgba(253, 203, 110, 0.4);
+        }
+
+        .btn-equals {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+            grid-column: span 2;
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
+        }
+
+        .btn-zero {
+            grid-column: span 2;
+        }
+
+        .fun-mode {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .fun-mode:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(162, 155, 254, 0.4);
+        }
+
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 20px;
+            animation: sparkleAnim 1s ease-out forwards;
+        }
+
+        @keyframes sparkleAnim {
+            0% {
+                opacity: 1;
+                transform: scale(0) rotate(0deg);
             }
-            
-            .toolbar {
-                width: 100%;
-                height: 80px;
-                flex-direction: row;
-                justify-content: center;
-                padding: 10px 0;
+            50% {
+                opacity: 1;
+                transform: scale(1.5) rotate(180deg);
             }
-            
-            .color-palette {
-                width: 100%;
+            100% {
+                opacity: 0;
+                transform: scale(0) rotate(360deg);
+            }
+        }
+
+        .easter-egg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            font-size: 1.5rem;
+        }
+
+        .history {
+            position: absolute;
+            bottom: -200px;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            transition: all 0.5s ease;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .history.show {
+            bottom: 0;
+        }
+
+        .history-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(116, 185, 255, 0.1);
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .toggle-history {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-history:hover {
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                margin: 20px;
                 padding: 20px;
             }
             
-            .main-area {
-                padding: 20px;
+            .display {
+                font-size: 2rem;
+                padding: 15px;
+            }
+            
+            .btn {
+                height: 60px;
+                font-size: 1.3rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="floating-particles" id="particles"></div>
+    <div class="floating-emojis" id="floating-emojis"></div>
+    
+    <div class="calculator">
+        <button class="fun-mode" id="fun-mode">🎉 Eğlence Modu</button>
         
-        <div class="toolbar">
-            <button class="tool active" id="brush" title="Fırça">🖌️</button>
-            <button class="tool" id="eraser" title="Silgi">🧽</button>
-            <button class="tool" id="fill" title="Doldur">🪣</button>
-            <button class="tool" id="picker" title="Renk Seçici">🎯</button>
+        <div class="calculator-face" id="calculator-face">😊</div>
+        
+        <div class="display">
+            <div class="comment" id="comment"></div>
+            <div class="display-value" id="display">0</div>
         </div>
-
-        <div class="main-area">
-            <div class="canvas-container">
-                <div class="canvas" id="canvas"></div>
-            </div>
-        </div>
-
-        <div class="color-palette">
-            <h3 class="palette-title">🎨 Renk Paleti</h3>
-            <div class="colors" id="colors"></div>
+        
+        <div class="buttons">
+            <button class="btn btn-special" onclick="calculator.clear()">C</button>
+            <button class="btn btn-special" onclick="calculator.clearEntry()">CE</button>
+            <button class="btn btn-special" onclick="calculator.backspace()">⌫</button>
+            <button class="btn btn-operator" onclick="calculator.inputOperator('/')">÷</button>
             
-            <div class="controls">
-                <div class="brush-size">
-                    <span>Fırça: </span>
-                    <input type="range" class="size-slider" min="1" max="3" value="1" id="brushSize">
-                    <span id="sizeDisplay">1x1</span>
-                </div>
-                
-                <button class="control-btn" id="clear">🗑️ Temizle</button>
-                <button class="control-btn" id="download">💾 İndir</button>
-                <button class="control-btn" id="randomize">🎲 Rastgele</button>
-            </div>
+            <button class="btn btn-number" onclick="calculator.inputNumber('7')">7</button>
+            <button class="btn btn-number" onclick="calculator.inputNumber('8')">8</button>
+            <button class="btn btn-number" onclick="calculator.inputNumber('9')">9</button>
+            <button class="btn btn-operator" onclick="calculator.inputOperator('*')">×</button>
+            
+            <button class="btn btn-number" onclick="calculator.inputNumber('4')">4</button>
+            <button class="btn btn-number" onclick="calculator.inputNumber('5')">5</button>
+            <button class="btn btn-number" onclick="calculator.inputNumber('6')">6</button>
+            <button class="btn btn-operator" onclick="calculator.inputOperator('-')">-</button>
+            
+            <button class="btn btn-number" onclick="calculator.inputNumber('1')">1</button>
+            <button class="btn btn-number" onclick="calculator.inputNumber('2')">2</button>
+            <button class="btn btn-number" onclick="calculator.inputNumber('3')">3</button>
+            <button class="btn btn-operator" onclick="calculator.inputOperator('+')">+</button>
+            
+            <button class="btn btn-number btn-zero" onclick="calculator.inputNumber('0')">0</button>
+            <button class="btn btn-special" onclick="calculator.inputDecimal()">.</button>
+            <button class="btn btn-equals" onclick="calculator.calculate()">=</button>
         </div>
+        
+        <button class="toggle-history" onclick="calculator.toggleHistory()">📜 Geçmiş</button>
+        
+        <div class="history" id="history">
+            <h4 style="margin-bottom: 10px;">📊 Hesaplama Geçmişi</h4>
+            <div id="history-list"></div>
+        </div>
+    </div>
+    
+    <div class="easter-egg" id="easter-egg">
+        <h2>🎉 Easter Egg Bulundu! 🎉</h2>
+        <p>Matematik sihirli bir şey! ✨</p>
+        <button onclick="document.getElementById('easter-egg').style.display='none'" 
+                style="margin-top: 15px; padding: 10px 20px; border: none; border-radius: 10px; background: #ff6b6b; color: white; cursor: pointer;">
+            Kapat
+        </button>
     </div>
 
     <script>
-        class PixelArtEditor {
+        class ComicCalculator {
             constructor() {
-                this.canvas = document.getElementById('canvas');
-                this.currentTool = 'brush';
-                this.currentColor = '#ff6b6b';
-                this.brushSize = 1;
-                this.pixels = [];
-                this.isDrawing = false;
+                this.display = document.getElementById('display');
+                this.commentBox = document.getElementById('comment');
+                this.calculatorFace = document.getElementById('calculator-face');
+                this.historyList = document.getElementById('history-list');
                 
-                this.colors = [
-                    '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4',
-                    '#fef65b', '#ff9ff3', '#54a0ff', '#5f27cd',
-                    '#000000', '#ffffff', '#2d3436', '#636e72',
-                    '#fd79a8', '#fdcb6e', '#6c5ce7', '#a29bfe'
-                ];
+                this.currentInput = '0';
+                this.operator = null;
+                this.previousInput = null;
+                this.waitingForOperand = false;
+                this.funMode = false;
+                this.history = [];
+                this.easterEggCount = 0;
+                
+                this.faces = ['😊', '🤓', '😎', '🤖', '😄', '🧐', '😋', '🤩'];
+                this.comments = {
+                    positive: [
+                        "Harika! 🌟",
+                        "Süpersin! 🚀",
+                        "Matematik ustası! 🧙‍♂️",
+                        "Bravo! 👏",
+                        "Mükemmel! ✨",
+                        "Zekisin! 🧠",
+                        "Aferin! 🎯"
+                    ],
+                    funny: [
+                        "Bu kolaydı! 😏",
+                        "Hesap makinesi olmasam bulamazdım! 🤣",
+                        "Matematik zor iş! 😅",
+                        "Beynim yandı! 🔥",
+                        "Bu da ne demek? 🤔",
+                        "Vay canına! 😲",
+                        "İlginç sonuç! 🤨"
+                    ],
+                    special: [
+                        "Bu sayı şanslı! 🍀",
+                        "Güzel bir sayı! 💎",
+                        "Bu sonucu sevdim! ❤️",
+                        "Matematiksel güzellik! 🎨",
+                        "Sonuç çok hoş! 🌈"
+                    ]
+                };
                 
                 this.init();
-                this.createParticles();
             }
             
             init() {
-                this.createCanvas();
-                this.createColorPalette();
+                this.updateDisplay();
+                this.createFloatingEmojis();
                 this.bindEvents();
-            }
-            
-            createCanvas() {
-                for (let i = 0; i < 256; i++) {
-                    const pixel = document.createElement('div');
-                    pixel.className = 'pixel';
-                    pixel.style.backgroundColor = '#ffffff';
-                    pixel.dataset.index = i;
-                    this.canvas.appendChild(pixel);
-                    this.pixels.push('#ffffff');
-                }
-            }
-            
-            createColorPalette() {
-                const colorsContainer = document.getElementById('colors');
-                this.colors.forEach((color, index) => {
-                    const colorDiv = document.createElement('div');
-                    colorDiv.className = 'color';
-                    colorDiv.style.backgroundColor = color;
-                    colorDiv.dataset.color = color;
-                    if (index === 0) colorDiv.classList.add('selected');
-                    colorsContainer.appendChild(colorDiv);
-                });
+                this.changeFace();
+                
+                // Face değiştirme animasyonu
+                setInterval(() => {
+                    if (this.funMode) {
+                        this.changeFace();
+                    }
+                }, 3000);
             }
             
             bindEvents() {
-                // Tool selection
-                document.querySelectorAll('.tool').forEach(tool => {
-                    tool.addEventListener('click', (e) => {
-                        document.querySelector('.tool.active').classList.remove('active');
-                        e.target.classList.add('active');
-                        this.currentTool = e.target.id;
-                    });
+                // Keyboard support
+                document.addEventListener('keydown', (e) => {
+                    const key = e.key;
+                    
+                    if (key >= '0' && key <= '9') {
+                        this.inputNumber(key);
+                    } else if (key === '.') {
+                        this.inputDecimal();
+                    } else if (['+', '-', '*', '/'].includes(key)) {
+                        this.inputOperator(key);
+                    } else if (key === 'Enter' || key === '=') {
+                        this.calculate();
+                    } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                        this.clear();
+                    } else if (key === 'Backspace') {
+                        this.backspace();
+                    }
                 });
                 
-                // Color selection
-                document.querySelectorAll('.color').forEach(color => {
-                    color.addEventListener('click', (e) => {
-                        document.querySelector('.color.selected').classList.remove('selected');
-                        e.target.classList.add('selected');
-                        this.currentColor = e.target.dataset.color;
-                    });
-                });
-                
-                // Canvas interactions
-                this.canvas.addEventListener('mousedown', (e) => {
-                    this.isDrawing = true;
-                    this.handlePixelClick(e);
-                });
-                
-                this.canvas.addEventListener('mouseover', (e) => {
-                    if (this.isDrawing) this.handlePixelClick(e);
-                });
-                
-                document.addEventListener('mouseup', () => {
-                    this.isDrawing = false;
-                });
-                
-                // Controls
-                document.getElementById('clear').addEventListener('click', () => this.clearCanvas());
-                document.getElementById('download').addEventListener('click', () => this.downloadImage());
-                document.getElementById('randomize').addEventListener('click', () => this.randomizeCanvas());
-                
-                // Brush size
-                const brushSize = document.getElementById('brushSize');
-                brushSize.addEventListener('input', (e) => {
-                    this.brushSize = parseInt(e.target.value);
-                    document.getElementById('sizeDisplay').textContent = `${this.brushSize}x${this.brushSize}`;
+                // Fun mode toggle
+                document.getElementById('fun-mode').addEventListener('click', () => {
+                    this.funMode = !this.funMode;
+                    this.showComment(this.funMode ? "Eğlence modu açık! 🎉" : "Normal mod 📊");
+                    
+                    if (this.funMode) {
+                        this.createSparkles();
+                        document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)';
+                    }
                 });
             }
             
-            handlePixelClick(e) {
-                if (!e.target.classList.contains('pixel')) return;
+            inputNumber(num) {
+                if (this.waitingForOperand) {
+                    this.currentInput = num;
+                    this.waitingForOperand = false;
+                } else {
+                    this.currentInput = this.currentInput === '0' ? num : this.currentInput + num;
+                }
                 
-                const index = parseInt(e.target.dataset.index);
-                const row = Math.floor(index / 16);
-                const col = index % 16;
+                this.updateDisplay();
+                this.playNumberSound();
                 
-                switch (this.currentTool) {
-                    case 'brush':
-                        this.paintPixels(row, col, this.currentColor);
-                        break;
-                    case 'eraser':
-                        this.paintPixels(row, col, '#ffffff');
-                        break;
-                    case 'fill':
-                        this.floodFill(row, col, this.currentColor);
-                        break;
-                    case 'picker':
-                        this.pickColor(index);
-                        break;
+                if (this.funMode) {
+                    this.createSparkles();
+                    this.showRandomComment('positive');
                 }
             }
             
-            paintPixels(centerRow, centerCol, color) {
-                const halfSize = Math.floor(this.brushSize / 2);
+            inputOperator(nextOperator) {
+                const inputValue = parseFloat(this.currentInput);
                 
-                for (let r = centerRow - halfSize; r <= centerRow + halfSize; r++) {
-                    for (let c = centerCol - halfSize; c <= centerCol + halfSize; c++) {
-                        if (r >= 0 && r < 16 && c >= 0 && c < 16) {
-                            const index = r * 16 + c;
-                            this.pixels[index] = color;
-                            this.canvas.children[index].style.backgroundColor = color;
+                if (this.previousInput === null) {
+                    this.previousInput = inputValue;
+                } else if (this.operator) {
+                    const currentValue = this.previousInput || 0;
+                    const newValue = this.performCalculation();
+                    
+                    this.currentInput = String(newValue);
+                    this.previousInput = newValue;
+                }
+                
+                this.waitingForOperand = true;
+                this.operator = nextOperator;
+                this.updateDisplay();
+                
+                this.changeFace();
+                if (this.funMode) {
+                    this.showRandomComment('funny');
+                }
+            }
+            
+            calculate() {
+                const inputValue = parseFloat(this.currentInput);
+                
+                if (this.previousInput !== null && this.operator) {
+                    const result = this.performCalculation();
+                    
+                    // History'ye ekle
+                    const calculation = `${this.previousInput} ${this.getOperatorSymbol()} ${inputValue} = ${result}`;
+                    this.history.unshift(calculation);
+                    if (this.history.length > 10) this.history.pop();
+                    this.updateHistory();
+                    
+                    this.currentInput = String(result);
+                    this.previousInput = null;
+                    this.operator = null;
+                    this.waitingForOperand = true;
+                    
+                    this.updateDisplay();
+                    this.celebrateResult(result);
+                    this.checkEasterEggs(result);
+                }
+            }
+            
+            performCalculation() {
+                const prev = this.previousInput;
+                const current = parseFloat(this.currentInput);
+                
+                switch (this.operator) {
+                    case '+':
+                        return prev + current;
+                    case '-':
+                        return prev - current;
+                    case '*':
+                        return prev * current;
+                    case '/':
+                        if (current === 0) {
+                            this.showComment("Sıfıra bölmek olmaz! 🚫");
+                            this.changeFace('😵');
+                            return 0;
                         }
-                    }
+                        return prev / current;
+                    default:
+                        return current;
                 }
             }
             
-            floodFill(row, col, newColor) {
-                const index = row * 16 + col;
-                const originalColor = this.pixels[index];
-                
-                if (originalColor === newColor) return;
-                
-                const stack = [{row, col}];
-                
-                while (stack.length > 0) {
-                    const {row: r, col: c} = stack.pop();
-                    const idx = r * 16 + c;
-                    
-                    if (r < 0 || r >= 16 || c < 0 || c >= 16) continue;
-                    if (this.pixels[idx] !== originalColor) continue;
-                    
-                    this.pixels[idx] = newColor;
-                    this.canvas.children[idx].style.backgroundColor = newColor;
-                    
-                    stack.push({row: r-1, col: c});
-                    stack.push({row: r+1, col: c});
-                    stack.push({row: r, col: c-1});
-                    stack.push({row: r, col: c+1});
-                }
+            clear() {
+                this.currentInput = '0';
+                this.previousInput = null;
+                this.operator = null;
+                this.waitingForOperand = false;
+                this.updateDisplay();
+                this.showComment("Temizlendi! ✨");
+                this.changeFace('😊');
             }
             
-            pickColor(index) {
-                const color = this.pixels[index];
-                this.currentColor = color;
-                document.querySelector('.color.selected').classList.remove('selected');
-                
-                const colorElement = document.querySelector(`[data-color="${color}"]`);
-                if (colorElement) {
-                    colorElement.classList.add('selected');
-                }
+            clearEntry() {
+                this.currentInput = '0';
+                this.updateDisplay();
+                this.showComment("Son giriş silindi! 🗑️");
             }
             
-            clearCanvas() {
-                this.pixels.fill('#ffffff');
-                Array.from(this.canvas.children).forEach(pixel => {
-                    pixel.style.backgroundColor = '#ffffff';
+            backspace() {
+                if (this.currentInput.length > 1) {
+                    this.currentInput = this.currentInput.slice(0, -1);
+                } else {
+                    this.currentInput = '0';
+                }
+                this.updateDisplay();
+            }
+            
+            inputDecimal() {
+                if (this.waitingForOperand) {
+                    this.currentInput = '0.';
+                    this.waitingForOperand = false;
+                } else if (this.currentInput.indexOf('.') === -1) {
+                    this.currentInput += '.';
+                }
+                this.updateDisplay();
+            }
+            
+            updateDisplay() {
+                const value = parseFloat(this.currentInput);
+                const formatted = value.toLocaleString('tr-TR', {
+                    maximumFractionDigits: 8
                 });
+                this.display.textContent = formatted;
             }
             
-            randomizeCanvas() {
-                for (let i = 0; i < 256; i++) {
-                    if (Math.random() > 0.7) {
-                        const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
-                        this.pixels[i] = randomColor;
-                        this.canvas.children[i].style.backgroundColor = randomColor;
+            showComment(text) {
+                this.commentBox.textContent = text;
+                this.commentBox.classList.add('show');
+                
+                setTimeout(() => {
+                    this.commentBox.classList.remove('show');
+                }, 2000);
+            }
+            
+            showRandomComment(type) {
+                const comments = this.comments[type];
+                const randomComment = comments[Math.floor(Math.random() * comments.length)];
+                this.showComment(randomComment);
+            }
+            
+            changeFace(face = null) {
+                if (face) {
+                    this.calculatorFace.textContent = face;
+                } else {
+                    const randomFace = this.faces[Math.floor(Math.random() * this.faces.length)];
+                    this.calculatorFace.textContent = randomFace;
+                }
+            }
+            
+            celebrateResult(result) {
+                if (this.funMode) {
+                    this.createSparkles();
+                    
+                    // Özel sayılar için özel kutlamalar
+                    if (result === 42) {
+                        this.showComment("Hayatın anlamı! 🌌");
+                        this.changeFace('🤯');
+                    } else if (result === 69) {
+                        this.showComment("Nice! 😎");
+                        this.changeFace('😏');
+                    } else if (result === 420) {
+                        this.showComment("Blaze it! 🔥");
+                        this.changeFace('😵‍💫');
+                    } else if (result % 100 === 0) {
+                        this.showComment("Yuvarlak sayı! 🎯");
+                        this.changeFace('🤩');
+                    } else {
+                        this.showRandomComment('special');
+                        this.changeFace();
                     }
                 }
             }
             
-            downloadImage() {
-                const canvas = document.createElement('canvas');
-                canvas.width = 160;
-                canvas.height = 160;
-                const ctx = canvas.getContext('2d');
-                
-                for (let i = 0; i < 256; i++) {
-                    const row = Math.floor(i / 16);
-                    const col = i % 16;
-                    ctx.fillStyle = this.pixels[i];
-                    ctx.fillRect(col * 10, row * 10, 10, 10);
+            checkEasterEggs(result) {
+                // Belirli sonuçlar için easter egg
+                if (result === 1337) {
+                    this.easterEggCount++;
+                    if (this.easterEggCount === 1) {
+                        document.getElementById('easter-egg').style.display = 'block';
+                    }
                 }
-                
-                const link = document.createElement('a');
-                link.download = `pixel-art-${Date.now()}.png`;
-                link.href = canvas.toDataURL();
-                link.click();
             }
             
-            createParticles() {
-                const particlesContainer = document.getElementById('particles');
+            createSparkles() {
+                const calculator = document.querySelector('.calculator');
                 
-                for (let i = 0; i < 20; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = Math.random() * 100 + '%';
-                    particle.style.animationDelay = Math.random() * 6 + 's';
-                    particle.style.animationDuration = (4 + Math.random() * 4) + 's';
-                    particlesContainer.appendChild(particle);
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const sparkle = document.createElement('div');
+                        sparkle.className = 'sparkle';
+                        sparkle.textContent = ['✨', '⭐', '💫', '🌟'][Math.floor(Math.random() * 4)];
+                        sparkle.style.left = Math.random() * 100 + '%';
+                        sparkle.style.top = Math.random() * 100 + '%';
+                        
+                        calculator.appendChild(sparkle);
+                        
+                        setTimeout(() => {
+                            sparkle.remove();
+                        }, 1000);
+                    }, i * 100);
                 }
+            }
+            
+            createFloatingEmojis() {
+                const container = document.getElementById('floating-emojis');
+                const emojis = ['🔢', '➕', '➖', '✖️', '➗', '🎯', '💡', '🚀', '⚡', '🌟'];
+                
+                setInterval(() => {
+                    const emoji = document.createElement('div');
+                    emoji.className = 'emoji';
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.left = Math.random() * 100 + '%';
+                    emoji.style.animationDuration = (6 + Math.random() * 4) + 's';
+                    emoji.style.animationDelay = Math.random() * 2 + 's';
+                    
+                    container.appendChild(emoji);
+                    
+                    setTimeout(() => {
+                        emoji.remove();
+                    }, 10000);
+                }, 2000);
+            }
+            
+            playNumberSound() {
+                // Web Audio API ile basit ses efekti
+                if (this.funMode) {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800 + Math.random() * 400, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                }
+            }
+            
+            getOperatorSymbol() {
+                switch (this.operator) {
+                    case '+': return '+';
+                    case '-': return '-';
+                    case '*': return '×';
+                    case '/': return '÷';
+                    default: return this.operator;
+                }
+            }
+            
+            toggleHistory() {
+                const history = document.getElementById('history');
+                history.classList.toggle('show');
+            }
+            
+            updateHistory() {
+                this.historyList.innerHTML = '';
+                this.history.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    div.textContent = item;
+                    this.historyList.appendChild(div);
+                });
             }
         }
         
-        // Initialize the editor
-        new PixelArtEditor();
+        // Initialize calculator
+        const calculator = new ComicCalculator();
+        
+        // Konami Code easter egg
+        let konamiCode = [];
+        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight'];
+        
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.code);
+            if (konamiCode.length > konamiSequence.length) {
+                konamiCode.shift();
+            }
+            
+            if (JSON.stringify(konamiCode) === JSON.stringify(konamiSequence)) {
+                calculator.showComment("Konami Code! Efsane! 🎮");
+                calculator.changeFace('🤯');
+                calculator.createSparkles();
+                konamiCode = [];
+            }
+        });
     </script>
 </body>
 </html>
