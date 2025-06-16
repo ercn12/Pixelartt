@@ -113,44 +113,12 @@
 
         .canvas {
             display: grid;
+            grid-template-columns: repeat(16, 1fr);
             gap: 2px;
             background: #f8f9fa;
             border-radius: 12px;
             padding: 10px;
             box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
-            max-width: 100%;
-            max-height: 80vh;
-            overflow: auto;
-        }
-
-        .canvas-size-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .size-btn {
-            padding: 8px 12px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .size-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-1px);
-        }
-
-        .size-btn.active {
-            background: linear-gradient(45deg, #4ecdc4, #44a08d);
-            border-color: #4ecdc4;
-            box-shadow: 0 0 15px rgba(78, 205, 196, 0.4);
         }
 
         .pixel {
@@ -170,7 +138,7 @@
         }
 
         .color-palette {
-            width: 320px;
+            width: 300px;
             background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(20px);
             padding: 30px;
@@ -178,7 +146,6 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            overflow-y: auto;
         }
 
         .palette-title {
@@ -191,13 +158,13 @@
 
         .colors {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
         }
 
         .color {
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             border-radius: 12px;
             cursor: pointer;
             border: 3px solid transparent;
@@ -333,13 +300,6 @@
 
         <div class="main-area">
             <div class="canvas-container">
-                <div class="canvas-size-selector">
-                    <button class="size-btn" data-size="8">8x8</button>
-                    <button class="size-btn active" data-size="16">16x16</button>
-                    <button class="size-btn" data-size="24">24x24</button>
-                    <button class="size-btn" data-size="32">32x32</button>
-                    <button class="size-btn" data-size="48">48x48</button>
-                </div>
                 <div class="canvas" id="canvas"></div>
             </div>
         </div>
@@ -371,38 +331,12 @@
                 this.brushSize = 1;
                 this.pixels = [];
                 this.isDrawing = false;
-                this.canvasSize = 16;
                 
                 this.colors = [
-                    // Kırmızı tonları
-                    '#ff6b6b', '#ff5252', '#f44336', '#e91e63', '#ad1457',
-                    // Pembe tonları
-                    '#ff9ff3', '#f8bbd9', '#ff4081', '#c2185b', '#880e4f',
-                    // Mor tonları
-                    '#6c5ce7', '#a29bfe', '#9c27b0', '#673ab7', '#3f51b5',
-                    // Mavi tonları
-                    '#45b7d1', '#54a0ff', '#2196f3', '#03a9f4', '#00bcd4',
-                    // Cyan tonları
-                    '#4ecdc4', '#26a69a', '#009688', '#00796b', '#004d40',
-                    // Yeşil tonları
-                    '#96ceb4', '#4caf50', '#8bc34a', '#cddc39', '#689f38',
-                    // Sarı tonları
-                    '#fef65b', '#fdcb6e', '#ffeb3b', '#ffc107', '#ff9800',
-                    // Turuncu tonları
-                    '#ff7675', '#ff6348', '#ff5722', '#e65100', '#bf360c',
-                    // Kahverengi tonları
-                    '#a0795f', '#8d6e63', '#795548', '#5d4037', '#3e2723',
-                    // Gri tonları
-                    '#636e72', '#90a4ae', '#607d8b', '#546e7a', '#455a64',
-                    // Siyah-Beyaz
-                    '#000000', '#212121', '#424242', '#757575', '#bdbdbd',
-                    '#e0e0e0', '#eeeeee', '#f5f5f5', '#fafafa', '#ffffff',
-                    // Pastel tonları
-                    '#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff',
-                    '#ffd1dc', '#e6e6fa', '#f0f8ff', '#f5fffa', '#fffaf0',
-                    // Neon tonları
-                    '#ff073a', '#39ff14', '#00ffff', '#ff00ff', '#ffff00',
-                    '#ff4500', '#9400d3', '#00ff00', '#1e90ff', '#ff1493'
+                    '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4',
+                    '#fef65b', '#ff9ff3', '#54a0ff', '#5f27cd',
+                    '#000000', '#ffffff', '#2d3436', '#636e72',
+                    '#fd79a8', '#fdcb6e', '#6c5ce7', '#a29bfe'
                 ];
                 
                 this.init();
@@ -416,20 +350,10 @@
             }
             
             createCanvas() {
-                this.canvas.innerHTML = '';
-                this.pixels = [];
-                const totalPixels = this.canvasSize * this.canvasSize;
-                
-                this.canvas.style.gridTemplateColumns = `repeat(${this.canvasSize}, 1fr)`;
-                
-                const pixelSize = Math.max(8, Math.min(25, 400 / this.canvasSize));
-                
-                for (let i = 0; i < totalPixels; i++) {
+                for (let i = 0; i < 256; i++) {
                     const pixel = document.createElement('div');
                     pixel.className = 'pixel';
                     pixel.style.backgroundColor = '#ffffff';
-                    pixel.style.width = `${pixelSize}px`;
-                    pixel.style.height = `${pixelSize}px`;
                     pixel.dataset.index = i;
                     this.canvas.appendChild(pixel);
                     this.pixels.push('#ffffff');
@@ -449,16 +373,6 @@
             }
             
             bindEvents() {
-                // Canvas size selection
-                document.querySelectorAll('.size-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        document.querySelector('.size-btn.active').classList.remove('active');
-                        e.target.classList.add('active');
-                        this.canvasSize = parseInt(e.target.dataset.size);
-                        this.createCanvas();
-                    });
-                });
-                
                 // Tool selection
                 document.querySelectorAll('.tool').forEach(tool => {
                     tool.addEventListener('click', (e) => {
@@ -508,8 +422,8 @@
                 if (!e.target.classList.contains('pixel')) return;
                 
                 const index = parseInt(e.target.dataset.index);
-                const row = Math.floor(index / this.canvasSize);
-                const col = index % this.canvasSize;
+                const row = Math.floor(index / 16);
+                const col = index % 16;
                 
                 switch (this.currentTool) {
                     case 'brush':
@@ -532,8 +446,8 @@
                 
                 for (let r = centerRow - halfSize; r <= centerRow + halfSize; r++) {
                     for (let c = centerCol - halfSize; c <= centerCol + halfSize; c++) {
-                        if (r >= 0 && r < this.canvasSize && c >= 0 && c < this.canvasSize) {
-                            const index = r * this.canvasSize + c;
+                        if (r >= 0 && r < 16 && c >= 0 && c < 16) {
+                            const index = r * 16 + c;
                             this.pixels[index] = color;
                             this.canvas.children[index].style.backgroundColor = color;
                         }
@@ -542,7 +456,7 @@
             }
             
             floodFill(row, col, newColor) {
-                const index = row * this.canvasSize + col;
+                const index = row * 16 + col;
                 const originalColor = this.pixels[index];
                 
                 if (originalColor === newColor) return;
@@ -551,9 +465,9 @@
                 
                 while (stack.length > 0) {
                     const {row: r, col: c} = stack.pop();
-                    const idx = r * this.canvasSize + c;
+                    const idx = r * 16 + c;
                     
-                    if (r < 0 || r >= this.canvasSize || c < 0 || c >= this.canvasSize) continue;
+                    if (r < 0 || r >= 16 || c < 0 || c >= 16) continue;
                     if (this.pixels[idx] !== originalColor) continue;
                     
                     this.pixels[idx] = newColor;
@@ -585,8 +499,7 @@
             }
             
             randomizeCanvas() {
-                const totalPixels = this.canvasSize * this.canvasSize;
-                for (let i = 0; i < totalPixels; i++) {
+                for (let i = 0; i < 256; i++) {
                     if (Math.random() > 0.7) {
                         const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
                         this.pixels[i] = randomColor;
@@ -597,20 +510,19 @@
             
             downloadImage() {
                 const canvas = document.createElement('canvas');
-                const pixelSize = 10;
-                canvas.width = this.canvasSize * pixelSize;
-                canvas.height = this.canvasSize * pixelSize;
+                canvas.width = 160;
+                canvas.height = 160;
                 const ctx = canvas.getContext('2d');
                 
-                for (let i = 0; i < this.pixels.length; i++) {
-                    const row = Math.floor(i / this.canvasSize);
-                    const col = i % this.canvasSize;
+                for (let i = 0; i < 256; i++) {
+                    const row = Math.floor(i / 16);
+                    const col = i % 16;
                     ctx.fillStyle = this.pixels[i];
-                    ctx.fillRect(col * pixelSize, row * pixelSize, pixelSize, pixelSize);
+                    ctx.fillRect(col * 10, row * 10, 10, 10);
                 }
                 
                 const link = document.createElement('a');
-                link.download = `pixel-art-${this.canvasSize}x${this.canvasSize}-${Date.now()}.png`;
+                link.download = `pixel-art-${Date.now()}.png`;
                 link.href = canvas.toDataURL();
                 link.click();
             }
