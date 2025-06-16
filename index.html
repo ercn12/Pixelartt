@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .toolbar {
+            width: 80px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 15px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tool {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .tool.active {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+
+        .tool::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .tool:hover::before {
+            left: 100%;
+        }
+
+        .main-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .canvas-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #fef65b);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .canvas {
+            display: grid;
+            gap: 2px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+            max-height: 80vh;
+            overflow: auto;
+        }
+
+        .canvas-size-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .size-btn {
+            padding: 8px 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .size-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .size-btn.active {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border-color: #4ecdc4;
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.4);
+        }
+
+        .pixel {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .pixel:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .color-palette {
+            width: 320px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .palette-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .colors {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .color {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .color.selected {
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .floating-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10px) rotate(360deg); opacity: 0; }
+        }
+
+        .brush-size {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .size-slider {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            appearance: none;
+        }
+
+        .size-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .toolbar {
+                width: 100%;
+                height: 80px;
+                flex-direction: row;
+                justify-content: center;
+                padding: 10px 0;
+            }
+            
+            .color-palette {
+                width: 100%;
+                padding: 20px;
+            }
+            
+            .main-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="floating-particles" id="particles"></div>
+        
+        <div class="toolbar">
+            <button class="tool active" id="brush" title="Fırça">🖌️</button>
+            <button class="tool" id="eraser" title="Silgi">🧽</button>
+            <button class="tool" id="fill" title="Doldur">🪣</button>
+            <button class="tool" id="picker" title="Renk Seçici">🎯</button>
+        </div>
+
+        <div class="main-area">
+            <div class="canvas-container">
+                <div class="canvas-size-selector">
+                    <button class="size-btn" data-size="8">8x8</button>
+                    <button class="size-btn active" data-size="16">16x16</button>
+                    <button class="size-btn" data-size="24">24x24</button>
+                    <button class="size-btn" data-size="32">32x32</button>
+                    <button class="size-btn" data-size="48">48x48</button>
+                </div>
+                <div class="canvas" id="canvas"></div>
+            </div>
+        </div>
+
+        <div class="color-palette">
+            <h3 class="palette-title">🎨 Renk Paleti</h3>
+            <div class="colors" id="colors"></div>
+            
+            <div class="controls">
+                <div class="brush-size">
+                    <span>Fırça: </span>
+                    <input type="range" class="size-slider" min="1" max="3" value="1" id="brushSize">
+                    <span id="sizeDisplay">1x1</span>
+                </div>
+                
+                <button class="control-btn" id="clear">🗑️ Temizle</button>
+                <button class="control-btn" id="download">💾 İndir</button>
+                <button class="control-btn" id="randomize">🎲 Rastgele</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class PixelArtEditor {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.currentTool = 'brush';
+                this.currentColor = '#ff6b6b';
+                this.brushSize = 1;
+                this.pixels = [];
+                this.isDrawing = false;
+                this.canvasSize = 16;
+                
+                this.colors = [
+                    // Kırmızı tonları
+                    '#ff6b6b', '#ff5252', '#f44336', '#e91e63', '#ad1457',
+                    // Pembe tonları
+                    '#ff9ff3', '#f8bbd9', '#ff4081', '#c2185b', '#880e4f',
+                    // Mor tonları
+                    '#6c5ce7', '#a29bfe', '#9c27b0', '#673ab7', '#3f51b5',
+                    // Mavi tonları
+                    '#45b7d1', '#54a0ff', '#2196f3', '#03a9f4', '#00bcd4',
+                    // Cyan tonları
+                    '#4ecdc4', '#26a69a', '#009688', '#00796b', '#004d40',
+                    // Yeşil tonları
+                    '#96ceb4', '#4caf50', '#8bc34a', '#cddc39', '#689f38',
+                    // Sarı tonları
+                    '#fef65b', '#fdcb6e', '#ffeb3b', '#ffc107', '#ff9800',
+                    // Turuncu tonları
+                    '#ff7675', '#ff6348', '#ff5722', '#e65100', '#bf360c',
+                    // Kahverengi tonları
+                    '#a0795f', '#8d6e63', '#795548', '#5d4037', '#3e2723',
+                    // Gri tonları
+                    '#636e72', '#90a4ae', '#607d8b', '#546e7a', '#455a64',
+                    // Siyah-Beyaz
+                    '#000000', '#212121', '#424242', '#757575', '#bdbdbd',
+                    '#e0e0e0', '#eeeeee', '#f5f5f5', '#fafafa', '#ffffff',
+                    // Pastel tonları
+                    '#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff',
+                    '#ffd1dc', '#e6e6fa', '#f0f8ff', '#f5fffa', '#fffaf0',
+                    // Neon tonları
+                    '#ff073a', '#39ff14', '#00ffff', '#ff00ff', '#ffff00',
+                    '#ff4500', '#9400d3', '#00ff00', '#1e90ff', '#ff1493'
+                ];
+                
+                this.init();
+                this.createParticles();
+            }
+            
+            init() {
+                this.createCanvas();
+                this.createColorPalette();
+                this.bindEvents();
+            }
+            
+            createCanvas() {
+                this.canvas.innerHTML = '';
+                this.pixels = [];
+                const totalPixels = this.canvasSize * this.canvasSize;
+                
+                this.canvas.style.gridTemplateColumns = `repeat(${this.canvasSize}, 1fr)`;
+                
+                const pixelSize = Math.max(8, Math.min(25, 400 / this.canvasSize));
+                
+                for (let i = 0; i < totalPixels; i++) {
+                    const pixel = document.createElement('div');
+                    pixel.className = 'pixel';
+                    pixel.style.backgroundColor = '#ffffff';
+                    pixel.style.width = `${pixelSize}px`;
+                    pixel.style.height = `${pixelSize}px`;
+                    pixel.dataset.index = i;
+                    this.canvas.appendChild(pixel);
+                    this.pixels.push('#ffffff');
+                }
+            }
+            
+            createColorPalette() {
+                const colorsContainer = document.getElementById('colors');
+                this.colors.forEach((color, index) => {
+                    const colorDiv = document.createElement('div');
+                    colorDiv.className = 'color';
+                    colorDiv.style.backgroundColor = color;
+                    colorDiv.dataset.color = color;
+                    if (index === 0) colorDiv.classList.add('selected');
+                    colorsContainer.appendChild(colorDiv);
+                });
+            }
+            
+            bindEvents() {
+                // Canvas size selection
+                document.querySelectorAll('.size-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelector('.size-btn.active').classList.remove('active');
+                        e.target.classList.add('active');
+                        this.canvasSize = parseInt(e.target.dataset.size);
+                        this.createCanvas();
+                    });
+                });
+                
+                // Tool selection
+                document.querySelectorAll('.tool').forEach(tool => {
+                    tool.addEventListener('click', (e) => {
+                        document.querySelector('.tool.active').classList.remove('active');
+                        e.target.classList.add('active');
+                        this.currentTool = e.target.id;
+                    });
+                });
+                
+                // Color selection
+                document.querySelectorAll('.color').forEach(color => {
+                    color.addEventListener('click', (e) => {
+                        document.querySelector('.color.selected').classList.remove('selected');
+                        e.target.classList.add('selected');
+                        this.currentColor = e.target.dataset.color;
+                    });
+                });
+                
+                // Canvas interactions
+                this.canvas.addEventListener('mousedown', (e) => {
+                    this.isDrawing = true;
+                    this.handlePixelClick(e);
+                });
+                
+                this.canvas.addEventListener('mouseover', (e) => {
+                    if (this.isDrawing) this.handlePixelClick(e);
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    this.isDrawing = false;
+                });
+                
+                // Controls
+                document.getElementById('clear').addEventListener('click', () => this.clearCanvas());
+                document.getElementById('download').addEventListener('click', () => this.downloadImage());
+                document.getElementById('randomize').addEventListener('click', () => this.randomizeCanvas());
+                
+                // Brush size
+                const brushSize = document.getElementById('brushSize');
+                brushSize.addEventListener('input', (e) => {
+                    this.brushSize = parseInt(e.target.value);
+                    document.getElementById('sizeDisplay').textContent = `${this.brushSize}x${this.brushSize}`;
+                });
+            }
+            
+            handlePixelClick(e) {
+                if (!e.target.classList.contains('pixel')) return;
+                
+                const index = parseInt(e.target.dataset.index);
+                const row = Math.floor(index / this.canvasSize);
+                const col = index % this.canvasSize;
+                
+                switch (this.currentTool) {
+                    case 'brush':
+                        this.paintPixels(row, col, this.currentColor);
+                        break;
+                    case 'eraser':
+                        this.paintPixels(row, col, '#ffffff');
+                        break;
+                    case 'fill':
+                        this.floodFill(row, col, this.currentColor);
+                        break;
+                    case 'picker':
+                        this.pickColor(index);
+                        break;
+                }
+            }
+            
+            paintPixels(centerRow, centerCol, color) {
+                const halfSize = Math.floor(this.brushSize / 2);
+                
+                for (let r = centerRow - halfSize; r <= centerRow + halfSize; r++) {
+                    for (let c = centerCol - halfSize; c <= centerCol + halfSize; c++) {
+                        if (r >= 0 && r < this.canvasSize && c >= 0 && c < this.canvasSize) {
+                            const index = r * this.canvasSize + c;
+                            this.pixels[index] = color;
+                            this.canvas.children[index].style.backgroundColor = color;
+                        }
+                    }
+                }
+            }
+            
+            floodFill(row, col, newColor) {
+                const index = row * this.canvasSize + col;
+                const originalColor = this.pixels[index];
+                
+                if (originalColor === newColor) return;
+                
+                const stack = [{row, col}];
+                
+                while (stack.length > 0) {
+                    const {row: r, col: c} = stack.pop();
+                    const idx = r * this.canvasSize + c;
+                    
+                    if (r < 0 || r >= this.canvasSize || c < 0 || c >= this.canvasSize) continue;
+                    if (this.pixels[idx] !== originalColor) continue;
+                    
+                    this.pixels[idx] = newColor;
+                    this.canvas.children[idx].style.backgroundColor = newColor;
+                    
+                    stack.push({row: r-1, col: c});
+                    stack.push({row: r+1, col: c});
+                    stack.push({row: r, col: c-1});
+                    stack.push({row: r, col: c+1});
+                }
+            }
+            
+            pickColor(index) {
+                const color = this.pixels[index];
+                this.currentColor = color;
+                document.querySelector('.color.selected').classList.remove('selected');
+                
+                const colorElement = document.querySelector(`[data-color="${color}"]`);
+                if (colorElement) {
+                    colorElement.classList.add('selected');
+                }
+            }
+            
+            clearCanvas() {
+                this.pixels.fill('#ffffff');
+                Array.from(this.canvas.children).forEach(pixel => {
+                    pixel.style.backgroundColor = '#ffffff';
+                });
+            }
+            
+            randomizeCanvas() {
+                const totalPixels = this.canvasSize * this.canvasSize;
+                for (let i = 0; i < totalPixels; i++) {
+                    if (Math.random() > 0.7) {
+                        const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+                        this.pixels[i] = randomColor;
+                        this.canvas.children[i].style.backgroundColor = randomColor;
+                    }
+                }
+            }
+            
+            downloadImage() {
+                const canvas = document.createElement('canvas');
+                const pixelSize = 10;
+                canvas.width = this.canvasSize * pixelSize;
+                canvas.height = this.canvasSize * pixelSize;
+                const ctx = canvas.getContext('2d');
+                
+                for (let i = 0; i < this.pixels.length; i++) {
+                    const row = Math.floor(i / this.canvasSize);
+                    const col = i % this.canvasSize;
+                    ctx.fillStyle = this.pixels[i];
+                    ctx.fillRect(col * pixelSize, row * pixelSize, pixelSize, pixelSize);
+                }
+                
+                const link = document.createElement('a');
+                link.download = `pixel-art-${this.canvasSize}x${this.canvasSize}-${Date.now()}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+            
+            createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (4 + Math.random() * 4) + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+        }
+        
+        // Initialize the editor
+        new PixelArtEditor();
+    </script>
+</body>
+</html>
