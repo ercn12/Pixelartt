@@ -1,11 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oto Yıkama Takip Sistemi</title>
-    <link href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css)" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK'ları: Tek dosya olarak yüklenir ve global 'firebase' objesini sağlar -->
+    <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase.js"></script>
     <style>
         /* Genel Sıfırlama ve Body Stili */
         * {
@@ -690,7 +691,7 @@
                     <p><strong>Demo Hesaplar:</strong></p>
                     <p><i class="fa-solid fa-key"></i> Admin: <code>admin</code> / <code>668857</code></p>
                     <p><i class="fa-solid fa-user"></i> Çalışan: <code>user1</code> / <code>user123</code></p>
-                    <p style="margin-top: 10px;">Not: Bu demo hesaplar, Firebase'den değil, uygulama içinde yönetilmektedir. Asıl Firebase entegrasyonu araç ve rapor verileri içindir.</p>
+                    <p style="margin-top: 10px;">Not: Kullanıcı adı ve şifre ile giriş yapın.</p>
                 </div>
             </div>
         </div>
@@ -830,7 +831,7 @@
                 <h3><i class="fa-solid fa-user-lock"></i> Kullanıcı Şifrelerini Yönet</h3>
                 <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
                     Bu demo uygulamasında, kullanıcı şifreleri sadece yerel demo hesabı için güncellenir. Gerçek Firebase Auth projenizde,
-                    başka bir kullanıcının şifresini yönetmek için <a href="[https://firebase.google.com/docs/auth/admin/manage-users#update_a_user](https://firebase.google.com/docs/auth/admin/manage-users#update_a_user)" target="_blank" style="color: #667eea; text-decoration: underline;">Firebase Admin SDK</a> kullanmanız gerekir (arka uç sunucunuzda).
+                    başka bir kullanıcının şifresini yönetmek için <a href="https://firebase.google.com/docs/auth/admin/manage-users#update_a_user" target="_blank" style="color: #667eea; text-decoration: underline;">Firebase Admin SDK</a> kullanmanız gerekir (arka uç sunucunuzda).
                 </p>
                 <div class="form-group">
                     <label for="selectUserForPasswordReset">Şifresi Değişecek Kullanıcı</label>
@@ -858,7 +859,7 @@
                 <h3><i class="fa-solid fa-key"></i> Şifremi Değiştir (Kendi Hesabınız)</h3>
                 <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
                     Bu demo uygulamasında, şifreler sadece yerel demo hesabı için güncellenir. Gerçek Firebase Auth projenizde,
-                    kendi şifrenizi değiştirmek için <a href="[https://firebase.google.com/docs/auth/web/manage-users#update_a_users_password](https://firebase.google.com/docs/auth/web/manage-users#update_a_users_password)" target="_blank" style="color: #667eea; text-decoration: underline;">Firebase Auth belgelerine</a> başvurun.
+                    kendi şifrenizi değiştirmek için <a href="https://firebase.google.com/docs/auth/web/manage-users#update_a_users_password" target="_blank" style="color: #667eea; text-decoration: underline;">Firebase Auth belgelerine</a> başvurun.
                 </p>
                 <div class="form-group">
                     <label for="oldPassword">Eski Şifre</label>
@@ -928,13 +929,10 @@
     <!-- Bildirim -->
     <div id="notification" class="notification"></div>
 
-    <script type="module">
-        // Firebase Modüllerinin Importları
-        import { initializeApp } from "[https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js](https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js)";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "[https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js](https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js)";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, onSnapshot, orderBy, where, setDoc, getDoc } from "[https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js](https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js)";
-        
+    <script>
         // --- Firebase Yapılandırması (Kullanıcı Tarafından Sağlandı) ---
+        // Firebase SDK'ları HTML'in head bölümünde standart script etiketleriyle yüklendiğinden,
+        // global 'firebase' objesi üzerinden erişim sağlıyoruz.
         const firebaseConfig = {
             apiKey: "AIzaSyBPQ3N_488wEu2lR3Ak63_Fp0FRo87nfSI",
             authDomain: "drawguess-dd2ae.firebaseapp.com",
@@ -957,12 +955,9 @@
 
         // Demo kullanıcıları Firebase Auth'tan çekileceği için bu dizi sadece başlangıçta tanımlanacak
         // ve Firebase'deki rollerle eşleştirilecek.
-        // Bu dizideki şifreler, Firebase Auth ile senkronize EDİLMEYECEKTİR.
-        // admin@example.com -> admin / 668857
-        // user1@example.com -> user1 / user123
         const LOCAL_DEMO_USERS = [
-            { username: "admin", email: "admin@example.com", password: "668857", role: "admin" },
-            { username: "user1", email: "user1@example.com", password: "user123", role: "user" }
+            { username: "admin", email: "admin@drawguess-dd2ae.com", password: "668857", role: "admin" }, // Admin şifresi güncellendi
+            { username: "user1", email: "user1@drawguess-dd2ae.com", password: "user123", role: "user" }
         ];
 
         // Firebase instance'ları (window objesine atanır)
@@ -993,29 +988,38 @@
          */
         async function initializeFirebaseAndAuth() {
             console.log("Firebase başlatılıyor...");
+            // Firebase SDK'larının yüklenmesini bekleyin.
+            // Modern tarayıcılarda script etiketleri genellikle HTML ayrıştırılırken yüklenir,
+            // ancak emin olmak için window.onload içinden çağırıyoruz.
+            if (typeof firebase === 'undefined' || !firebase.app || !firebase.auth || !firebase.firestore) {
+                console.error("Firebase global objesi veya modülleri tanımlı değil. SDK yüklenmemiş olabilir.");
+                showNotification("Firebase SDK yüklenirken hata oluştu!", "error");
+                return;
+            }
+
             try {
                 // Firebase uygulamalarını ve servislerini başlat
-                window.firebaseApp = initializeApp(firebaseConfig);
-                window.firestoreDb = getFirestore(window.firebaseApp);
-                window.firebaseAuth = getAuth(window.firebaseApp);
+                window.firebaseApp = firebase.initializeApp(firebaseConfig);
+                window.firestoreDb = firebase.firestore();
+                window.firebaseAuth = firebase.auth();
 
                 // Koleksiyon referanslarını tanımla
-                window.carsCollectionRef = collection(window.firestoreDb, 'artifacts', APP_ID_FOR_FIRESTORE_PATHS, 'public', 'data', 'cars');
-                window.feedbackCollectionRef = collection(window.firestoreDb, 'artifacts', APP_ID_FOR_FIRESTORE_PATHS, 'public', 'data', 'feedback');
-                window.historicalCarsCollectionRef = collection(window.firestoreDb, 'artifacts', APP_ID_FOR_FIRESTORE_PATHS, 'public', 'data', 'historical_cars');
-                window.historicalFeedbackCollectionRef = collection(window.firestoreDb, 'artifacts', APP_ID_FOR_FIRESTORE_PATHS, 'public', 'data', 'historical_feedback');
-                window.settingsDocRef = doc(window.firestoreDb, 'artifacts', APP_ID_FOR_FIRESTORE_PATHS, 'public', 'data', 'settings', 'daily_cleanup');
-                window.userRolesCollectionRef = collection(window.firestoreDb, 'artifacts', APP_ID_FOR_FIRESTORE_PATHS, 'public', 'data', 'user_roles');
+                window.carsCollectionRef = window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('cars');
+                window.feedbackCollectionRef = window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('feedback');
+                window.historicalCarsCollectionRef = window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('historical_cars');
+                window.historicalFeedbackCollectionRef = window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('historical_feedback');
+                window.settingsDocRef = window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('settings').doc('daily_cleanup');
+                window.userRolesCollectionRef = window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('user_roles');
                 
                 console.log("Firebase servisleri başlatıldı. Project ID:", APP_ID_FOR_FIRESTORE_PATHS);
 
                 // Kimlik doğrulama durumu değiştiğinde tetiklenir
-                onAuthStateChanged(window.firebaseAuth, async (user) => {
+                window.firebaseAuth.onAuthStateChanged(async (user) => {
                     if (user) {
                         window.currentUserId = user.uid;
                         // Kullanıcının rolünü Firestore'dan çek
-                        const userRoleDoc = await getDoc(doc(window.userRolesCollectionRef, user.uid));
-                        if (userRoleDoc.exists()) {
+                        const userRoleDoc = await window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('user_roles').doc(user.uid).get();
+                        if (userRoleDoc.exists) {
                             window.currentUser = { 
                                 uid: user.uid, 
                                 email: user.email, 
@@ -1034,8 +1038,6 @@
                         // Anonim veya çıkış yapılmışsa, local storage'dan kullanıcıyı temizle
                         window.currentUser = null;
                         localStorage.removeItem('currentUser');
-                        // Anonim giriş yapılıyorsa (onAuthStateChanged sonrası tetiklenir)
-                        // window.currentUserId = crypto.randomUUID(); // Bu artık kullanılmıyor, Firebase UID'si her zaman var.
                         console.log("Firebase Auth Durumu Değişti: Oturum kapatıldı.");
                     }
                     window.isFirebaseReady = true;
@@ -1043,11 +1045,10 @@
                     await appReadySetup();
                 });
 
-                // Başlangıç kimlik doğrulamasını yap
-                // Eğer Canvas ortamı özel token sağlamıyorsa, anonim girişle başlarız.
-                // Bu örnekte, dışarıdan token gelmediği için her zaman anonim başlanacak.
+                // Başlangıç kimlik doğrulamasını yap (anonim giriş)
+                // Bu anonim kullanıcı, Firestore'daki verilere okuma/yazma izni veren güvenlik kurallarınız sayesinde erişebilir.
                 console.log("Anonim giriş deniyor...");
-                await signInAnonymously(window.firebaseAuth);
+                await window.firebaseAuth.signInAnonymously();
                 console.log("Anonim olarak giriş yapıldı.");
 
             } catch (e) {
@@ -1073,7 +1074,7 @@
             console.log("Firestore dinleyicileri ayarlanıyor...");
 
             // Arabalar koleksiyonu için dinleyici
-            carsUnsubscribe = onSnapshot(query(window.carsCollectionRef), (snapshot) => {
+            carsUnsubscribe = window.carsCollectionRef.onSnapshot((snapshot) => {
                 window.cars = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 console.log("Firestore'dan araçlar güncellendi. Araç sayısı:", window.cars.length);
                 if (document.getElementById('employeeScreen').classList.contains('active')) {
@@ -1092,7 +1093,7 @@
             });
 
             // Geri bildirimler koleksiyonu için dinleyici
-            feedbackUnsubscribe = onSnapshot(query(window.feedbackCollectionRef), (snapshot) => {
+            feedbackUnsubscribe = window.feedbackCollectionRef.onSnapshot((snapshot) => {
                 window.feedback = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 console.log("Firestore'dan geri bildirimler güncellendi. Geri bildirim sayısı:", window.feedback.length);
                 if (document.getElementById('reportsScreen').classList.contains('active')) {
@@ -1104,7 +1105,7 @@
             });
 
             // Kullanıcı rolleri koleksiyonu için dinleyici (Admin paneli için)
-            userRolesUnsubscribe = onSnapshot(query(window.userRolesCollectionRef), (snapshot) => {
+            userRolesUnsubscribe = window.userRolesCollectionRef.onSnapshot((snapshot) => {
                 window.users = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
                 console.log("Firestore'dan kullanıcı rolleri güncellendi. Kullanıcı sayısı:", window.users.length);
                 if (document.getElementById('adminScreen').classList.contains('active')) {
@@ -1139,7 +1140,7 @@
             // Firebase'de başlangıç admin kullanıcısını ve rollerini oluştur.
             // Bu kısım, uygulamanın ilk defa çalıştırılması için tasarlanmıştır.
             // Gerçek bir uygulamada bu, daha güvenli bir şekilde sunucu tarafında yapılmalıdır.
-            await ensureInitialAdminUser();
+            await ensureInitialDemoUsers();
 
             setupFirestoreListeners(); // Firestore dinleyicilerini başlat
             await performDailyCleanup(); // Günlük temizliği çalıştır ve arşivle
@@ -1161,14 +1162,14 @@
                 console.log("localStorage'da kullanıcı bulunamadı.");
             }
             
-            updateUI();
+            window.updateUI(); // Global updateUI çağrıldı
             // Giriş yapmış kullanıcıları ilgili panellerine yönlendir, aksi takdirde müşteri sorgu ekranını göster
             if (window.currentUser && window.currentUser.role === 'admin') {
-                showAdminPanel(); 
+                window.showAdminPanel(); // Global showAdminPanel çağrıldı
             } else if (window.currentUser && window.currentUser.role === 'user') {
-                showEmployeePanel();
+                window.showEmployeePanel(); // Global showEmployeePanel çağrıldı
             } else {
-                showCustomerSearch(); // Uygulama açıldığında varsayılan ekran: Müşteri Sorgu
+                window.showCustomerSearch(); // Uygulama açıldığında varsayılan ekran: Müşteri Sorgu (Global showCustomerSearch çağrıldı)
             }
         }
 
@@ -1176,39 +1177,33 @@
          * Uygulamada tanımlanmış demo kullanıcılarının Firebase Auth ve Firestore'da var olduğundan emin olur.
          * Özellikle admin kullanıcısının ilk çalıştırmada oluşturulmasını sağlar.
          */
-        async function ensureInitialAdminUser() {
-            console.log("Başlangıç kullanıcılarını kontrol ediyor...");
+        async function ensureInitialDemoUsers() {
+            console.log("Başlangıç demo kullanıcılarını kontrol ediyor ve oluşturuyor...");
             for (const demoUser of LOCAL_DEMO_USERS) {
                 try {
-                    // Kullanıcıyı e-posta ile almayı dene
-                    const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, demoUser.email, demoUser.password);
+                    // Kullanıcıyı e-posta ile giriş yapmayı dene
+                    const userCredential = await window.firebaseAuth.signInWithEmailAndPassword(demoUser.email, demoUser.password);
                     console.log(`Kullanıcı ${demoUser.username} Firebase Auth'ta zaten var.`);
+                    
                     // Rol kaydının Firestore'da var olduğundan emin ol
-                    const userRoleDocRef = doc(window.userRolesCollectionRef, userCredential.user.uid);
-                    const userRoleDoc = await getDoc(userRoleDocRef);
-                    if (!userRoleDoc.exists()) {
-                        await setDoc(userRoleDocRef, { username: demoUser.username, email: demoUser.email, role: demoUser.role });
+                    const userRoleDocRef = window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('user_roles').doc(userCredential.user.uid);
+                    const userRoleDoc = await userRoleDocRef.get();
+                    if (!userRoleDoc.exists) {
+                        await userRoleDocRef.set({ username: demoUser.username, email: demoUser.email, role: demoUser.role });
                         console.log(`Kullanıcı ${demoUser.username} için Firestore rolü eklendi.`);
-                    }
-                    // Eğer admin ise, otomatik giriş yapmış sayılabilir (sadece ilk admin için)
-                    if (demoUser.role === 'admin') {
-                         if (!window.currentUser || window.currentUser.role !== 'admin') {
-                             window.currentUser = { uid: userCredential.user.uid, email: demoUser.email, username: demoUser.username, role: demoUser.role };
-                             localStorage.setItem('currentUser', JSON.stringify(window.currentUser));
-                             console.log(`Admin ${demoUser.username} otomatik olarak ayarlandı.`);
-                         }
                     }
 
                 } catch (error) {
-                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
                         // Kullanıcı bulunamazsa veya şifre yanlışsa, yeni kullanıcı olarak oluştur.
-                        // YALNIZCA DEMO İÇİN KULLANILIR. GERÇEK UYGULAMADA ASLA BÖYLE YAPMAYIN.
+                        // YALNIZCA DEMO VE İLK KURULUM İÇİN KULLANILIR. GERÇEK UYGULAMADA YÖNETİCİ HESAPLARI BÖYLE OLUŞTURULMAZ.
                         try {
-                            const newUserCredential = await createUserWithEmailAndPassword(window.firebaseAuth, demoUser.email, demoUser.password);
-                            await setDoc(doc(window.userRolesCollectionRef, newUserCredential.user.uid), { username: demoUser.username, email: demoUser.email, role: demoUser.role });
+                            const newUserCredential = await window.firebaseAuth.createUserWithEmailAndPassword(demoUser.email, demoUser.password);
+                            await window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('user_roles').doc(newUserCredential.user.uid).set({ username: demoUser.username, email: demoUser.email, role: demoUser.role });
                             console.log(`Kullanıcı ${demoUser.username} başarıyla oluşturuldu ve rolü atandı.`);
                         } catch (createError) {
                             console.error(`Kullanıcı ${demoUser.username} oluşturulurken hata:`, createError);
+                            window.showNotification(`Demo kullanıcı ${demoUser.username} oluşturulamadı: ${createError.message}`, 'error'); // Global showNotification çağrıldı
                         }
                     } else {
                         console.error(`Kullanıcı ${demoUser.username} kontrol edilirken beklenmeyen hata:`, error);
@@ -1244,8 +1239,8 @@
             // Müşteri sorgu butonu her zaman görünür
             customerBtn.style.display = 'block';
 
-            if (window.currentUser && window.firebaseAuth.currentUser && !window.firebaseAuth.currentUser.isAnonymous) {
-                // Giriş yapılmış ve anonim değilse
+            // Eğer Firebase Auth'tan gerçek bir kullanıcı oturum açmışsa (anonim değilse)
+            if (window.firebaseAuth.currentUser && !window.firebaseAuth.currentUser.isAnonymous && window.currentUser) {
                 loginBtn.style.display = 'none';
                 logoutBtn.style.display = 'block';
                 
@@ -1413,29 +1408,34 @@
             
             try {
                 // Firebase Auth ile giriş yap
-                const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, userMapping.email, password);
+                const userCredential = await window.firebaseAuth.signInWithEmailAndPassword(userMapping.email, password);
                 const user = userCredential.user;
 
                 // Kullanıcının rolünü Firestore'dan çek
-                const userRoleDoc = await getDoc(doc(window.userRolesCollectionRef, user.uid));
-                if (userRoleDoc.exists()) {
-                    window.currentUser = { uid: user.uid, email: user.email, username: userRoleDoc.data().username, role: userRoleDoc.data().role };
-                    localStorage.setItem('currentUser', JSON.stringify(window.currentUser));
-                    updateUI();
-                    showNotification(`Hoş geldiniz ${window.currentUser.username}!`, 'success');
+                const userRoleDoc = await window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('user_roles').doc(user.uid).get();
+                if (userRoleDoc.exists) {
+                    window.currentUser = { 
+                        uid: user.uid, 
+                        email: user.email, 
+                        username: userRoleDoc.data().username, 
+                        role: userRoleDoc.data().role 
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(window.currentUser)); // Oturumu güncelle
+                    window.updateUI();
+                    window.showNotification(`Hoş geldiniz ${window.currentUser.username}!`, 'success');
                     // Role göre yönlendirme
                     if (window.currentUser.role === 'admin') {
-                        showAdminPanel(); 
+                        window.showAdminPanel(); 
                     } else if (window.currentUser.role === 'user') {
-                        showEmployeePanel();
+                        window.showEmployeePanel();
                     }
                     usernameInput.value = ''; // Alanları temizle
                     passwordInput.value = '';
                     console.log("Giriş başarılı. Kullanıcı:", window.currentUser.username, "Yönlendiriliyor...");
                 } else {
                     // Firebase Auth'ta var ama Firestore'da rolü yoksa
-                    showNotification('Kullanıcı rolü bulunamadı. Lütfen yöneticinize başvurun!', 'error');
-                    await signOut(window.firebaseAuth); // Oturumu kapat
+                    window.showNotification('Kullanıcı rolü bulunamadı. Lütfen yöneticinize başvurun!', 'error');
+                    await window.firebaseAuth.signOut(); // Oturumu kapat
                     console.log("Giriş başarısız: Kullanıcı rolü bulunamadı.");
                 }
             } catch (error) {
@@ -1447,7 +1447,7 @@
                 } else {
                     console.error("Giriş hatası:", error);
                 }
-                showNotification(errorMessage, 'error');
+                window.showNotification(errorMessage, 'error');
                 usernameInput.classList.add('is-invalid');
                 passwordInput.classList.add('is-invalid');
             }
@@ -1458,37 +1458,42 @@
          */
         window.logout = async function() {
             try {
-                await signOut(window.firebaseAuth); // Firebase Auth'tan çıkış yap
+                await window.firebaseAuth.signOut(); // Firebase Auth'tan çıkış yap
                 window.currentUser = null;
                 localStorage.removeItem('currentUser'); // Kalıcı durumu temizle
-                updateUI();
-                showLogin(); // Giriş ekranına dön
-                showNotification('Başarıyla çıkış yapıldı!', 'success');
+                window.updateUI();
+                window.showLogin(); // Giriş ekranına dön
+                window.showNotification('Başarıyla çıkış yapıldı!', 'success');
                 console.log("Kullanıcı Firebase Auth'tan ve yerel depolamadan çıkış yaptı.");
             } catch (error) {
                 console.error("Çıkış sırasında hata oluştu:", error);
-                showNotification("Çıkış sırasında hata oluştu!", "error");
+                window.showNotification("Çıkış sırasında hata oluştu!", "error");
             }
         };
+
+        /**
+         * Hızlı giriş butonları kaldırıldı. Bu fonksiyon artık kullanılmıyor.
+         */
+        // window.quickLogin = function(roleType) { ... }; // Fonksiyon kaldırıldı.
 
         /**
          * Giriş ekranını gösterir.
          */
         window.showLogin = function() {
-            showScreen('loginScreen');
+            window.showScreen('loginScreen');
         };
 
         /**
          * Müşteri sorgu ekranını gösterir ve başlatır.
          */
         window.showCustomerSearch = function() {
-            showScreen('customerScreen');
+            window.showScreen('customerScreen');
             document.getElementById('plateSearch').value = ''; // Arama alanını temizle
             document.getElementById('carResults').innerHTML = '<p style="text-align: center; color: #777;">Plaka numarasını girerek araç durumunu sorgulayabilirsiniz.</p>';
             window.selectedRating = 0; // Anketi sıfırla
             document.getElementById('feedbackText').value = '';
             document.querySelectorAll('#ratingStars .star').forEach(star => star.classList.remove('active'));
-            updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
+            window.updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
         };
 
         /**
@@ -1497,13 +1502,13 @@
         window.showEmployeePanel = function() {
             // Firebase Auth kullanıcısı yoksa veya rolü uygun değilse erişimi engelle
             if (!window.firebaseAuth.currentUser || !window.currentUser || (window.currentUser.role !== 'user' && window.currentUser.role !== 'admin')) {
-                showNotification('Bu alana erişim izniniz yok!', 'error');
-                showLogin();
+                window.showNotification('Bu alana erişim izniniz yok!', 'error');
+                window.showLogin();
                 return;
             }
-            showScreen('employeeScreen');
-            cancelCarEdit(); // Formu her zaman temiz bir şekilde göster
-            updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
+            window.showScreen('employeeScreen');
+            window.cancelCarEdit(); // Formu her zaman temiz bir şekilde göster
+            window.updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
             // Veriler Firebase dinleyicisi tarafından otomatik olarak render edilecektir.
         };
 
@@ -1513,11 +1518,11 @@
         window.showAdminPanel = function() {
             // Firebase Auth kullanıcısı yoksa veya admin değilse erişimi engelle
             if (!window.firebaseAuth.currentUser || !window.currentUser || window.currentUser.role !== 'admin') {
-                showNotification('Bu alana erişim izniniz yok!', 'error');
-                showLogin();
+                window.showNotification('Bu alana erişim izniniz yok!', 'error');
+                window.showLogin();
                 return;
             }
-            showScreen('adminScreen');
+            window.showScreen('adminScreen');
             renderUserList(); // Admin paneline kullanıcıları render et
             populateUserSelectionForPasswordReset(); // Kullanıcı seçme dropdown'ını doldur
             
@@ -1536,7 +1541,7 @@
             document.querySelectorAll('#adminScreen .error-message').forEach(el => el.textContent = '');
             document.querySelectorAll('#adminScreen input, #adminScreen select').forEach(el => el.classList.remove('is-invalid'));
 
-            updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
+            window.updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
         };
 
         /**
@@ -1545,13 +1550,13 @@
         window.showReports = function() {
             // Firebase Auth kullanıcısı yoksa veya admin değilse erişimi engelle
             if (!window.firebaseAuth.currentUser || !window.currentUser || window.currentUser.role !== 'admin') {
-                showNotification('Bu alana erişim izniniz yok!', 'error');
-                showLogin();
+                window.showNotification('Bu alana erişim izniniz yok!', 'error');
+                window.showLogin();
                 return;
             }
-            showScreen('reportsScreen');
+            window.showScreen('reportsScreen');
             renderReports(); // Raporları oluştur ve göster
-            updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
+            window.updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
         };
 
         /**
@@ -1652,19 +1657,19 @@
 
                         ${allowCarActions && (window.currentUser && (window.currentUser.role === 'admin' || window.currentUser.role === 'user')) ? `
                         <div class="status-controls">
-                            <button class="status-btn inqueue <span class="math-inline">\{car\.status \=\=\= 'inQueue' ? 'active' \: ''\}" onclick\="updateCarStatus\('</span>{car.id}', 'inQueue')">
+                            <button class="status-btn inqueue ${car.status === 'inQueue' ? 'active' : ''}" onclick="updateCarStatus('${car.id}', 'inQueue')">
                                 <i class="fa-solid fa-hourglass-half"></i> Sırada
                             </button>
-                            <button class="status-btn exteriorwash <span class="math-inline">\{car\.status \=\=\= 'exteriorWash' ? 'active' \: ''\}" onclick\="updateCarStatus\('</span>{car.id}', 'exteriorWash')">
+                            <button class="status-btn exteriorwash ${car.status === 'exteriorWash' ? 'active' : ''}" onclick="updateCarStatus('${car.id}', 'exteriorWash')">
                                 <i class="fa-solid fa-water"></i> Dış Yıkamada
                             </button>
-                            <button class="status-btn dryingarea <span class="math-inline">\{car\.status \=\=\= 'dryingArea' ? 'active' \: ''\}" onclick\="updateCarStatus\('</span>{car.id}', 'dryingArea')">
+                            <button class="status-btn dryingarea ${car.status === 'dryingArea' ? 'active' : ''}" onclick="updateCarStatus('${car.id}', 'dryingArea')">
                                 <i class="fa-solid fa-wind"></i> Kurulama Alanında
                             </button>
-                            <button class="status-btn parkingarea <span class="math-inline">\{car\.status \=\=\= 'parkingArea' ? 'active' \: ''\}" onclick\="updateCarStatus\('</span>{car.id}', 'parkingArea')">
+                            <button class="status-btn parkingarea ${car.status === 'parkingArea' ? 'active' : ''}" onclick="updateCarStatus('${car.id}', 'parkingArea')">
                                 <i class="fa-solid fa-parking"></i> Park Alanında
                             </button>
-                            <button class="status-btn delivered <span class="math-inline">\{car\.status \=\=\= 'delivered' ? 'active' \: ''\}" onclick\="updateCarStatus\('</span>{car.id}', 'delivered')">
+                            <button class="status-btn delivered ${car.status === 'delivered' ? 'active' : ''}" onclick="updateCarStatus('${car.id}', 'delivered')">
                                 <i class="fa-solid fa-truck"></i> Teslim Edildi
                             </button>
                         </div>
@@ -1718,25 +1723,29 @@
          */
         window.submitFeedback = async function() {
             if (!window.firestoreDb || !window.feedbackCollectionRef) {
-                showNotification("Veritabanı bağlantısı henüz hazır değil.", "error");
+                window.showNotification("Veritabanı bağlantısı henüz hazır değil.", "error");
                 return;
             }
             const feedbackText = document.getElementById('feedbackText').value.trim();
             
             if (window.selectedRating === 0 && !feedbackText) {
-                showNotification('Lütfen bir puan verin veya yorum yazın!', 'error');
+                window.showNotification('Lütfen bir puan verin veya yorum yazın!', 'error');
                 return;
             }
 
             toggleButtonState('submitFeedbackBtn', true); // Butonu devre dışı bırak
             try {
-                await addDoc(window.feedbackCollectionRef, {
+                // Anonim kullanıcı da geri bildirim gönderebilir.
+                // Güvenlik kurallarınızda (Firestore Rules) anonim kullanıcıların yazma izni olması gerekir.
+                await window.feedbackCollectionRef.add({
                     rating: window.selectedRating,
                     comment: feedbackText,
                     timestamp: new Date().toISOString(),
-                    plate: document.getElementById('plateSearch').value.trim().toUpperCase() || 'N/A'
+                    plate: document.getElementById('plateSearch').value.trim().toUpperCase() || 'N/A',
+                    userId: window.currentUserId, // Geri bildirimi gönderen kullanıcının UID'si
+                    userName: window.currentUser ? window.currentUser.username : 'Anonim'
                 });
-                showNotification('Geri bildiriminiz başarıyla gönderildi!', 'success');
+                window.showNotification('Geri bildiriminiz başarıyla gönderildi!', 'success');
                 
                 // Anketi sıfırla
                 window.selectedRating = 0;
@@ -1745,7 +1754,7 @@
                 
             } catch (e) {
                 console.error("Geri bildirim gönderilirken hata oluştu:", e);
-                showNotification("Geri bildirim gönderilirken hata oluştu!", "error");
+                window.showNotification("Geri bildirim gönderilirken hata oluştu!", "error");
             } finally {
                 toggleButtonState('submitFeedbackBtn', false); // Butonu tekrar etkinleştir
             }
@@ -1756,7 +1765,7 @@
          */
         window.addUser = async function() {
             if (!window.currentUser || window.currentUser.role !== 'admin') {
-                showNotification('Sadece adminler kullanıcı ekleyebilir!', 'error');
+                window.showNotification('Sadece adminler kullanıcı ekleyebilir!', 'error');
                 return;
             }
 
@@ -1769,47 +1778,44 @@
                 { id: 'newPassword', name: 'Şifre', required: true, type: 'password' }
             ];
             if (!validateForm(fields)) {
-                showNotification('Lütfen tüm zorunlu alanları doldurun!', 'error');
+                window.showNotification('Lütfen tüm zorunlu alanları doldurun!', 'error');
                 return;
             }
 
-            // Kullanıcı adını e-postaya dönüştür (Firebase Auth için benzersiz olmalı)
+            // Kullanıcı adını e-posta adresine dönüştür (Firebase Auth için benzersiz olmalı)
             const newUserEmail = `${newUsernameInput.value.trim().toLowerCase()}@${APP_ID_FOR_FIRESTORE_PATHS}.com`;
 
             // Firebase Auth'ta zaten böyle bir e-posta var mı kontrol et
             try {
-                // signInWithEmailAndPassword, kullanıcının varlığını kontrol etmenin basit bir yolu.
-                // Eğer kullanıcı varsa ama şifre yanlışsa hata verir.
-                // Burada sadece varlığını kontrol etmek istiyoruz.
-                await signInWithEmailAndPassword(window.firebaseAuth, newUserEmail, newPasswordInput.value.trim());
-                showNotification('Bu kullanıcı adı (e-posta) zaten mevcut!', 'error');
+                await window.firebaseAuth.fetchSignInMethodsForEmail(newUserEmail);
+                // Eğer buraya gelirse, e-posta zaten kullanılıyor demektir.
+                window.showNotification('Bu e-posta adresi zaten kullanılıyor. Başka bir kullanıcı adı deneyin.', 'error');
                 newUsernameInput.classList.add('is-invalid');
-                document.getElementById('errorNewUsername').textContent = 'Bu kullanıcı adı zaten mevcut.';
+                document.getElementById('errorNewUsername').textContent = 'Bu e-posta adresi zaten kullanılıyor.';
                 return;
             } catch (error) {
-                if (error.code !== 'auth/user-not-found' && error.code !== 'auth/wrong-password' && error.code !== 'auth/invalid-credential') {
-                    // Beklenmeyen bir hata olursa
-                    console.error("Kullanıcı kontrolü sırasında hata:", error);
-                    showNotification("Kullanıcı kontrolü sırasında hata oluştu!", "error");
+                if (error.code !== 'auth/user-not-found') { // auth/user-not-found ise devam edebiliriz
+                    console.error("E-posta kontrolü sırasında hata:", error);
+                    window.showNotification("Kullanıcı eklenirken hata oluştu!", "error");
                     return;
                 }
-                // Kullanıcı bulunamadı veya şifre yanlış, yani bu e-posta adresiyle yeni kullanıcı oluşturabiliriz.
             }
             
             toggleButtonState('addUserBtn', true); // Butonu devre dışı bırak
+            window.showNotification('Kullanıcı ekleniyor...', 'info');
             try {
                 // Firebase Auth'ta kullanıcı oluştur
-                const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, newUserEmail, newPasswordInput.value.trim());
+                const userCredential = await window.firebaseAuth.createUserWithEmailAndPassword(newUserEmail, newPasswordInput.value.trim());
                 const newUserUid = userCredential.user.uid;
 
                 // Firestore'da kullanıcı rolünü kaydet
-                await setDoc(doc(window.userRolesCollectionRef, newUserUid), { 
+                await window.userRolesCollectionRef.doc(newUserUid).set({ // doc().set() kullanarak UID'yi belge ID'si yap
                     username: newUsernameInput.value.trim(), 
                     email: newUserEmail, 
                     role: newUserRoleSelect.value 
                 });
 
-                showNotification(`'${newUsernameInput.value.trim()}' kullanıcısı (${newUserRoleSelect.value === 'admin' ? 'Admin' : 'Çalışan'}) başarıyla eklendi!`, 'success');
+                window.showNotification(`'${newUsernameInput.value.trim()}' kullanıcısı (${newUserRoleSelect.value === 'admin' ? 'Admin' : 'Çalışan'}) başarıyla eklendi!`, 'success');
                 
                 newUsernameInput.value = '';
                 newPasswordInput.value = '';
@@ -1823,11 +1829,11 @@
                     newUsernameInput.classList.add('is-invalid');
                     document.getElementById('errorNewUsername').textContent = errorMessage;
                 } else if (e.code === 'auth/weak-password') {
-                    errorMessage = 'Şifre çok zayıf. Daha güçlü bir şifre deneyin.';
+                    errorMessage = 'Şifre çok zayıf. En az 6 karakter olmalıdır.';
                     newPasswordInput.classList.add('is-invalid');
                     document.getElementById('errorNewPassword').textContent = errorMessage;
                 }
-                showNotification(errorMessage, "error");
+                window.showNotification(errorMessage, "error");
             } finally {
                 toggleButtonState('addUserBtn', false); // Butonu tekrar etkinleştir
             }
@@ -1888,7 +1894,7 @@
          */
         window.changeMyOwnPassword = async function() {
             if (!window.firebaseAuth.currentUser || !window.currentUser) {
-                showNotification('Şifre değiştirmek için giriş yapmalısınız!', 'error');
+                window.showNotification('Şifre değiştirmek için giriş yapmalısınız!', 'error');
                 return;
             }
 
@@ -1903,39 +1909,32 @@
             ];
 
             if (!validateForm(fields)) {
-                showNotification('Lütfen tüm şifre alanlarını doğru doldurun!', 'error');
+                window.showNotification('Lütfen tüm şifre alanlarını doğru doldurun!', 'error');
                 return;
             }
 
-            // Firebase Auth şifre değiştirme işlemi öncesi mevcut şifre ile tekrar giriş yapılması gerekebilir.
-            // Ancak bu basit demo için bu adım atlanmıştır.
-            // Gerçek bir uygulamada updatePassword'dan önce reauthenticateWithCredential kullanmalısınız.
+            // Firebase Auth şifre değiştirme işlemi öncesi kullanıcının kimliğini yeniden doğrulamak iyi bir güvenlik uygulamasıdır.
+            // (e.g., firebase.auth.EmailAuthProvider.credential ve reauthenticateWithCredential)
+            // Bu demo basitlik için atlanmıştır, ancak gerçek bir uygulamada önemlidir.
 
             if (newAuthPasswordInput.value === oldPasswordInput.value) {
-                showNotification('Yeni şifre eski şifre ile aynı olamaz!', 'error');
+                window.showNotification('Yeni şifre eski şifre ile aynı olamaz!', 'error');
                 newAuthPasswordInput.classList.add('is-invalid');
                 document.getElementById('errorNewAuthPassword').textContent = 'Yeni şifre eski şifre ile aynı olamaz.';
                 return;
             }
 
             toggleButtonState('changeMyOwnPasswordBtn', true);
-            showNotification('Şifre güncelleniyor...', 'info');
+            window.showNotification('Şifre güncelleniyor...', 'info');
             try {
-                // Firebase Auth şifre güncelleme
-                await updatePassword(window.firebaseAuth.currentUser, newAuthPasswordInput.value);
-                
-                // Demo kullanıcı dizisini de güncelle (bu kısım gerçek Firebase Auth'ta olmaz)
-                const userIndex = LOCAL_DEMO_USERS.findIndex(u => u.email === window.currentUser.email);
-                if (userIndex !== -1) {
-                    LOCAL_DEMO_USERS[userIndex].password = newAuthPasswordInput.value;
-                }
-
-                showNotification('Şifreniz başarıyla değiştirildi!', 'success');
+                await window.firebaseAuth.currentUser.updatePassword(newAuthPasswordInput.value);
+                window.showNotification('Şifreniz başarıyla değiştirildi!', 'success');
                 
                 oldPasswordInput.value = '';
                 newAuthPasswordInput.value = '';
                 confirmNewAuthPasswordInput.value = '';
-                // renderUserList ve populateUserSelectionForPasswordReset zaten onSnapshot ile güncellenir.
+                // Firestore listener (userRolesUnsubscribe) aracılığıyla `window.users` otomatik olarak güncellenir.
+                // (Ancak Firestore'daki user_roles belgesine şifre saklamıyoruz, sadece demo LOCAL_DEMO_USERS'ı temsil eder).
             } catch (e) {
                 console.error("Kendi şifresi değiştirilirken hata oluştu:", e);
                 let errorMessage = "Şifre değiştirilirken hata oluştu!";
@@ -1944,7 +1943,7 @@
                 } else if (e.code === 'auth/weak-password') {
                     errorMessage = 'Şifre çok zayıf. Daha güçlü bir şifre deneyin.';
                 }
-                showNotification(errorMessage, "error");
+                window.showNotification(errorMessage, "error");
             } finally {
                 toggleButtonState('changeMyOwnPasswordBtn', false);
             }
@@ -1954,11 +1953,11 @@
          * Seçilen kullanıcının şifresini admin olarak sıfırlar/değiştirir.
          * NOT: Bu işlem, istemci tarafı Firebase Auth SDK ile doğrudan yapılamaz.
          * Sunucu tarafı (Firebase Admin SDK veya Cloud Function) gerektirir.
-         * Bu demo sadece UI'ı gösterir, gerçek şifre sıfırlama yapmaz.
+         * Bu demo sadece UI'ı gösterir ve konsola hata basar, gerçek şifre sıfırlama yapmaz.
          */
         window.resetSelectedUserPassword = async function() {
             if (!window.currentUser || window.currentUser.role !== 'admin') {
-                showNotification('Bu işlemi yapmaya yetkiniz yok!', 'error');
+                window.showNotification('Bu işlemi yapmaya yetkiniz yok!', 'error');
                 return;
             }
 
@@ -1973,58 +1972,55 @@
             ];
 
             if (!validateForm(fields)) {
-                showNotification('Lütfen tüm alanları doğru doldurun!', 'error');
+                window.showNotification('Lütfen tüm alanları doğru doldurun!', 'error');
                 return;
             }
 
-            const targetUid = selectUserForPasswordReset.value; // Dropdown'dan UID alıyoruz
+            const targetUid = selectUserForPasswordReset.value; 
             const newPassword = selectedUserNewPassword.value;
 
-            const targetUserInRoles = window.users.find(u => u.uid === targetUid); // Firestore'dan çekilen kullanıcı
-            const targetUserInDemo = LOCAL_DEMO_USERS.find(u => u.email === targetUserInRoles?.email); // Demo kullanıcı dizisinden eşleşen
+            const targetUserInRoles = window.users.find(u => u.uid === targetUid); 
 
             if (!targetUserInRoles) {
-                showNotification('Seçilen kullanıcı bulunamadı!', 'error');
+                window.showNotification('Seçilen kullanıcı bulunamadı!', 'error');
                 return;
             }
-            if (targetUserInDemo && targetUserInDemo.password === newPassword) { // Demo şifresiyle aynıysa uyar
-                showNotification('Yeni şifre eski şifre ile aynı olamaz!', 'error');
+            // Şifre aynı olamaz kontrolü (sadece demo kullanıcıları için)
+            // Normalde Firebase Admin SDK şifre kontrolü yapmaz, direkt günceller.
+            const targetDemoUser = LOCAL_DEMO_USERS.find(u => u.email === targetUserInRoles.email);
+            if (targetDemoUser && targetDemoUser.password === newPassword) {
+                window.showNotification('Yeni şifre eski şifre ile aynı olamaz!', 'error');
                 selectedUserNewPassword.classList.add('is-invalid');
                 document.getElementById('errorSelectedUserNewPassword').textContent = 'Yeni şifre eski şifre ile aynı olamaz.';
                 return;
             }
 
             toggleButtonState('resetSelectedUserPasswordBtn', true);
-            showNotification(`'${targetUserInRoles.username}' kullanıcısının şifresi güncelleniyor... (DEMO)`, 'info');
+            window.showNotification(`'${targetUserInRoles.username}' kullanıcısının şifresi güncelleniyor... (DEMO)`, 'info');
             
             try {
                 // *** GERÇEK UYGULAMADA BURADA SUNUCU TARAFI BİR İŞLEM OLMALIDIR ***
                 // Firebase Admin SDK (Node.js/Python vb. ile) kullanılarak:
                 // admin.auth().updateUser(targetUid, { password: newPassword });
                 // VEYA Firebase Cloud Function çağrısı yapılmalıdır.
-
-                // Bu demo için, sadece LOCAL_DEMO_USERS dizisini güncelleyeceğiz:
-                if (targetUserInDemo) {
-                    targetUserInDemo.password = newPassword;
-                    // Eğer hedef kullanıcı, o an giriş yapmış kullanıcı ise, kendi localStorage'ını da güncelle.
-                    if (window.currentUser && window.currentUser.uid === targetUid) {
-                        window.currentUser.password = newPassword;
-                        localStorage.setItem('currentUser', JSON.stringify(window.currentUser));
-                    }
-                } else {
-                    // Eğer kullanıcı LOCAL_DEMO_USERS'ta değilse, sadece bildirim ver.
-                    console.warn("Seçilen kullanıcı LOCAL_DEMO_USERS'ta bulunamadı, şifre sadece temsili olarak sıfırlandı.");
+                console.error("Admin olarak başka bir kullanıcının şifresini doğrudan istemci tarafından değiştirmek güvenlik sebebiyle mümkün değildir. Sunucu taraflı Admin SDK kullanmanız gerekir.");
+                window.showNotification("Başka bir kullanıcının şifresi demo sürümünde değiştirilemez!", "error");
+                
+                // Demo kullanıcı dizisini güncelle (sadece UI temsili için)
+                if (targetDemoUser) {
+                    targetDemoUser.password = newPassword;
                 }
 
-                showNotification(`'${targetUserInRoles.username}' kullanıcısının şifresi (DEMO) başarıyla sıfırlandı!`, 'success');
-                
                 selectUserForPasswordReset.value = '';
                 selectedUserNewPassword.value = '';
                 confirmSelectedUserNewPassword.value = '';
-                // renderUserList zaten onSnapshot ile güncellenir (çünkü userRoles değişir).
+                // Firestore listener otomatik olarak `window.users`'ı güncelleyecektir,
+                // ancak bu durumda Firestore'daki rol belgesine şifre yazmadığımız için
+                // bu güncelleme görsel olarak yansımaz.
+
             } catch (e) {
                 console.error("Şifre sıfırlanırken hata oluştu:", e);
-                showNotification("Şifre sıfırlanırken hata oluştu!", "error");
+                window.showNotification("Şifre sıfırlanırken hata oluştu!", "error");
             } finally {
                 toggleButtonState('resetSelectedUserPasswordBtn', false);
             }
@@ -2036,11 +2032,11 @@
          */
         window.handleAddOrUpdateCar = async function() {
             if (!window.firestoreDb || !window.carsCollectionRef || !window.firebaseAuth.currentUser) {
-                showNotification("Veritabanı bağlantısı veya kullanıcı oturumu hazır değil.", "error");
+                window.showNotification("Veritabanı bağlantısı veya kullanıcı oturumu hazır değil.", "error");
                 return;
             }
             if (!window.currentUser || (window.currentUser.role !== 'user' && window.currentUser.role !== 'admin')) {
-                showNotification('Bu işlemi yapmaya yetkiniz yok!', 'error');
+                window.showNotification('Bu işlemi yapmaya yetkiniz yok!', 'error');
                 return;
             }
 
@@ -2067,7 +2063,7 @@
             ];
 
             if (!validateForm(fields)) {
-                showNotification('Lütfen tüm zorunlu alanları doldurun ve diğerlerini doğru formatta girin!', 'error');
+                window.showNotification('Lütfen tüm zorunlu alanları doldurun ve diğerlerini doğru formatta girin!', 'error');
                 return;
             }
 
@@ -2086,32 +2082,32 @@
 
             toggleButtonState('submitCarBtn', true); // Butonu devre dışı bırak
             toggleButtonState('cancelCarEditBtn', true);
-            showNotification('İşlem yapılıyor...', 'info');
+            window.showNotification('İşlem yapılıyor...', 'info');
             try {
                 if (currentEditingCarId) {
                     // Düzenleme işlemi
-                    const carRef = doc(window.firestoreDb, window.carsCollectionRef.path, currentEditingCarId);
-                    await updateDoc(carRef, carData);
-                    showNotification(`'${carData.plate}' plakalı araç başarıyla güncellendi!`, 'success');
+                    const carRef = window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('cars').doc(currentEditingCarId);
+                    await carRef.update(carData);
+                    window.showNotification(`'${carData.plate}' plakalı araç başarıyla güncellendi!`, 'success');
                 } else {
                     // Ekleme işlemi
                     // Plakanın zaten var olup olmadığını Firestore'da kontrol et
-                    const q = query(window.carsCollectionRef, where("plate", "==", carData.plate));
-                    const querySnapshot = await getDocs(q);
+                    const q = window.carsCollectionRef.where("plate", "==", carData.plate);
+                    const querySnapshot = await q.get();
                     if (!querySnapshot.empty) {
-                        showNotification('Bu plaka numarası zaten kayıtlı!', 'error');
+                        window.showNotification('Bu plaka numarası zaten kayıtlı!', 'error');
                         newPlateInput.classList.add('is-invalid');
                         document.getElementById('errorNewPlate').textContent = 'Bu plaka numarası zaten kayıtlı.';
                         return; // İşlemi durdur
                     }
                     carData.entryTime = new Date().toISOString(); // Yeni araç için giriş zamanı
-                    await addDoc(window.carsCollectionRef, carData);
-                    showNotification(`'${carData.plate}' plakalı araç başarıyla eklendi!`, 'success');
+                    await window.carsCollectionRef.add(carData);
+                    window.showNotification(`'${carData.plate}' plakalı araç başarıyla eklendi!`, 'success');
                 }
-                cancelCarEdit(); // Formu temizle ve ekleme moduna dön
+                window.cancelCarEdit(); // Formu temizle ve ekleme moduna dön
             } catch (e) {
                 console.error("Araç işlemi sırasında hata oluştu:", e);
-                showNotification("Araç işlemi sırasında hata oluştu!", "error");
+                window.showNotification("Araç işlemi sırasında hata oluştu!", "error");
             } finally {
                 toggleButtonState('submitCarBtn', false); // Butonu tekrar etkinleştir
                 toggleButtonState('cancelCarEditBtn', false);
@@ -2125,7 +2121,7 @@
         window.editCar = function(carId) {
             const car = window.cars.find(c => c.id === carId);
             if (!car) {
-                showNotification('Düzenlenecek araç bulunamadı!', 'error');
+                window.showNotification('Düzenlenecek araç bulunamadı!', 'error');
                 return;
             }
 
@@ -2181,28 +2177,28 @@
          */
         window.updateCarStatus = async function(carId, newStatus) {
             if (!window.firestoreDb || !window.carsCollectionRef || !window.firebaseAuth.currentUser) {
-                showNotification("Veritabanı bağlantısı veya kullanıcı oturumu hazır değil.", "error");
+                window.showNotification("Veritabanı bağlantısı veya kullanıcı oturumu hazır değil.", "error");
                 return;
             }
             if (!window.currentUser || (window.currentUser.role !== 'user' && window.currentUser.role !== 'admin')) {
-                showNotification('Durum güncelleme yetkiniz yok!', 'error');
+                window.showNotification('Durum güncelleme yetkiniz yok!', 'error');
                 return;
             }
 
-            const carRef = doc(window.firestoreDb, window.carsCollectionRef.path, carId);
+            const carRef = window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('cars').doc(carId);
             const carData = window.cars.find(car => car.id === carId); 
 
             if (!carData) {
-                showNotification('Güncellenecek araç bulunamadı!', 'error');
+                window.showNotification('Güncellenecek araç bulunamadı!', 'error');
                 return;
             }
 
             // Butonları ve ilgili UI'ları devre dışı bırak
             document.querySelectorAll(`.status-btn[onclick*="updateCarStatus('${carId}'"]`).forEach(btn => btn.disabled = true);
-            showNotification('Durum güncelleniyor...', 'info');
+            window.showNotification('Durum güncelleniyor...', 'info');
 
             try {
-                await updateDoc(carRef, {
+                await carRef.update({
                     status: newStatus,
                     // Duruma göre ilerleme ayarı (örn: Teslim edildi %100, diğerleri 0)
                     currentProgress: (newStatus === 'delivered' || newStatus === 'parkingArea') ? 100 : 0, 
@@ -2217,11 +2213,11 @@
                 };
                 const displayStatus = statusMapTurkish[newStatus] || capitalizeFirstLetter(newStatus);
 
-                showNotification(`'${carData.plate}' plakalı aracın durumu '${displayStatus}' olarak güncellendi!`, 'success');
+                window.showNotification(`'${carData.plate}' plakalı aracın durumu '${displayStatus}' olarak güncellendi!`, 'success');
                 // Firestore listener otomatik olarak UI'yı güncelleyecektir.
             } catch (e) {
                 console.error("Araç durumu güncellenirken hata oluştu:", e);
-                showNotification("Araç durumu güncellenirken hata oluştu!", "error");
+                window.showNotification("Araç durumu güncellenirken hata oluştu!", "error");
             } finally {
                 // Tüm ilgili butonları tekrar etkinleştir
                 document.querySelectorAll(`.status-btn[onclick*="updateCarStatus('${carId}'"]`).forEach(btn => btn.disabled = false);
@@ -2234,11 +2230,11 @@
          */
         window.deleteCar = async function(carId) {
             if (!window.firestoreDb || !window.carsCollectionRef || !window.firebaseAuth.currentUser) {
-                showNotification("Veritabanı bağlantısı veya kullanıcı oturumu hazır değil.", "error");
+                window.showNotification("Veritabanı bağlantısı veya kullanıcı oturumu hazır değil.", "error");
                 return;
             }
             if (!window.currentUser || window.currentUser.role !== 'admin') {
-                showNotification('Sadece adminler araç silebilir!', 'error');
+                window.showNotification('Sadece adminler araç silebilir!', 'error');
                 return;
             }
 
@@ -2246,18 +2242,16 @@
             const userConfirmed = confirm('Bu aracı silmek istediğinizden emin misiniz?'); 
             if (!userConfirmed) return;
 
-            // Genel bir silme butonu olduğu varsayılırsa toggle yapısı biraz farklı olmalı.
-            // Örneğin, tıklanan karttaki butonu devre dışı bırakmak için daha spesifik bir selector gerekir.
-            showNotification('Araç siliniyor...', 'info');
+            window.showNotification('Araç siliniyor...', 'info');
 
             try {
-                const carRef = doc(window.firestoreDb, window.carsCollectionRef.path, carId);
-                await deleteDoc(carRef);
-                showNotification('Araç başarıyla silindi!', 'success');
+                const carRef = window.firestoreDb.collection('artifacts').doc(APP_ID_FOR_FIRESTORE_PATHS).collection('public').doc('data').collection('cars').doc(carId);
+                await carRef.delete();
+                window.showNotification('Araç başarıyla silindi!', 'success');
                 // Firestore listener otomatik olarak UI'yı güncelleyecektir.
             } catch (e) {
                 console.error("Araç silinirken hata oluştu:", e);
-                showNotification("Araç silinirken hata oluştu!", "error");
+                window.showNotification("Araç silinirken hata oluştu!", "error");
             }
         };
 
@@ -2273,7 +2267,7 @@
          */
         async function renderReports() {
             if (!window.firestoreDb) {
-                showNotification("Veritabanı bağlantısı henüz hazır değil.", "error");
+                window.showNotification("Veritabanı bağlantısı henüz hazır değil.", "error");
                 return;
             }
             const todayIstanbul = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' }); 
@@ -2364,25 +2358,25 @@
 
             try {
                 // Son temizleme tarihini Firestore'dan oku
-                const settingsDoc = await getDoc(window.settingsDocRef);
-                const lastCleanupDate = settingsDoc.exists() ? settingsDoc.data().lastCleanupDate : null;
+                const settingsDoc = await window.settingsDocRef.get();
+                const lastCleanupDate = settingsDoc.exists ? settingsDoc.data().lastCleanupDate : null;
 
                 console.log(`Güncel İstanbul Tarihi: ${todayIstanbul}`);
                 console.log(`Son Temizleme Tarihi (Firestore'dan): ${lastCleanupDate}`);
 
                 if (!lastCleanupDate || todayIstanbul > lastCleanupDate) {
-                    showNotification('Günlük temizlik başlatılıyor...', 'info');
+                    window.showNotification('Günlük temizlik başlatılıyor...', 'info');
                     console.log("Yeni gün tespit edildi, günlük temizlik ve arşivleme başlatılıyor.");
 
                     // Sadece bugünden eski olan araçları al
-                    const oldCarsQuery = query(window.carsCollectionRef, where("entryTime", "<", new Date(todayIstanbul).toISOString()));
-                    const carsSnapshot = await getDocs(oldCarsQuery);
+                    const oldCarsQuery = window.carsCollectionRef.where("entryTime", "<", new Date(todayIstanbul).toISOString());
+                    const carsSnapshot = await oldCarsQuery.get();
                     
                     if (!carsSnapshot.empty) {
                         const carMovePromises = carsSnapshot.docs.map(async (d) => {
                             const carData = d.data();
-                            await addDoc(window.historicalCarsCollectionRef, { ...carData, originalId: d.id, archivedAt: new Date().toISOString() }); // Arşive taşı
-                            await deleteDoc(doc(window.firestoreDb, window.carsCollectionRef.path, d.id)); // Orijinalini sil
+                            await window.historicalCarsCollectionRef.add({ ...carData, originalId: d.id, archivedAt: new Date().toISOString() }); // Arşive taşı
+                            await window.carsCollectionRef.doc(d.id).delete(); // Orijinalini sil
                         });
                         await Promise.all(carMovePromises);
                         console.log(`${carsSnapshot.size} eski araç kaydı arşivlendi ve silindi.`);
@@ -2391,14 +2385,14 @@
                     }
 
                     // Sadece bugünden eski olan geri bildirimleri al
-                    const oldFeedbackQuery = query(window.feedbackCollectionRef, where("timestamp", "<", new Date(todayIstanbul).toISOString()));
-                    const feedbackSnapshot = await getDocs(oldFeedbackQuery);
+                    const oldFeedbackQuery = window.feedbackCollectionRef.where("timestamp", "<", new Date(todayIstanbul).toISOString());
+                    const feedbackSnapshot = await oldFeedbackQuery.get();
 
                     if (!feedbackSnapshot.empty) {
                         const feedbackMovePromises = feedbackSnapshot.docs.map(async (d) => {
                             const feedbackData = d.data();
-                            await addDoc(window.historicalFeedbackCollectionRef, { ...feedbackData, originalId: d.id, archivedAt: new Date().toISOString() }); // Arşive taşı
-                            await deleteDoc(doc(window.firestoreDb, window.feedbackCollectionRef.path, d.id)); // Orijinalini sil
+                            await window.historicalFeedbackCollectionRef.add({ ...feedbackData, originalId: d.id, archivedAt: new Date().toISOString() }); // Arşive taşı
+                            await window.feedbackCollectionRef.doc(d.id).delete(); // Orijinalini sil
                         });
                         await Promise.all(feedbackMovePromises);
                         console.log(`${feedbackSnapshot.size} eski geri bildirim kaydı arşivlendi ve silindi.`);
@@ -2407,16 +2401,16 @@
                     }
                     
                     // Son temizleme tarihini Firestore'a kaydet
-                    await setDoc(window.settingsDocRef, { lastCleanupDate: todayIstanbul });
+                    await window.settingsDocRef.set({ lastCleanupDate: todayIstanbul });
 
-                    showNotification('Günlük araç kayıtları ve geri bildirimler temizlendi ve arşivlendi!', 'success');
+                    window.showNotification('Günlük araç kayıtları ve geri bildirimler temizlendi ve arşivlendi!', 'success');
                     console.log("Günlük temizlik Firestore üzerinde tamamlandı.");
                 } else {
                     console.log("Bugün temizlik gerekmiyor.");
                 }
             } catch (e) {
                 console.error("Günlük temizlik sırasında hata oluştu:", e);
-                showNotification("Günlük temizlik sırasında hata oluştu!", "error");
+                window.showNotification("Günlük temizlik sırasında hata oluştu!", "error");
             }
         }
 
