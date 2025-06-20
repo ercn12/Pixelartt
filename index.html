@@ -683,4 +683,1555 @@
                     <label for="password">Şifre</label>
                     <input type="password" id="password" placeholder="Şifrenizi girin" onkeypress="handleEnterKey(event)">
                 </div>
-                <button class="btn btn-primary" onclick="login()"><i cl
+                <button class="btn btn-primary" onclick="login()"><i class="fa-solid fa-sign-in-alt"></i> Giriş Yap</button>
+                <!-- Hızlı Giriş Butonları Kaldırıldı -->
+                <div class="user-info">
+                    <p><strong>Demo Hesaplar:</strong></p>
+                    <p><i class="fa-solid fa-key"></i> Admin: <code>admin</code> / <code>668857</code></p>
+                    <p><i class="fa-solid fa-user"></i> Çalışan: <code>user1</code> / <code>user123</code></p>
+                    <p><i class="fa-solid fa-car"></i> Test Plakaları: <code>34ABC123</code>, <code>06XYZ789</code></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Müşteri Sorgu Ekranı -->
+        <div id="customerScreen" class="screen">
+            <h2><i class="fa-solid fa-search"></i> Araç Durumu Sorgulama</h2>
+            <div class="search-container">
+                <div class="search-icon">🔍</div>
+                <input type="text" class="search-input" id="plateSearch" placeholder="Plaka numarasını girin (örn: 34ABC123)" maxlength="8" oninput="searchCar()">
+            </div>
+            
+            <div id="carResults">
+                <p style="text-align: center; color: #777;">Plaka numarasını girerek araç durumunu sorgulayabilirsiniz.</p>
+            </div>
+            
+            <div class="satisfaction-survey">
+                <h3><i class="fa-solid fa-star-half-stroke"></i> Memnuniyet Anketi</h3>
+                <p>Hizmetimizden ne kadar memnun kaldınız?</p>
+                <div class="rating-stars" id="ratingStars">
+                    <span class="star" onclick="setRating(1)">⭐</span>
+                    <span class="star" onclick="setRating(2)">⭐</span>
+                    <span class="star" onclick="setRating(3)">⭐</span>
+                    <span class="star" onclick="setRating(4)">⭐</span>
+                    <span class="star" onclick="setRating(5)">⭐</span>
+                </div>
+                <div class="form-group">
+                    <textarea id="feedbackText" placeholder="Görüş ve önerilerinizi paylaşın..." rows="3"></textarea>
+                </div>
+                <button class="btn btn-primary" id="submitFeedbackBtn" onclick="submitFeedback()"><i class="fa-solid fa-paper-plane"></i> Geri Bildirimi Gönder</button>
+            </div>
+        </div>
+
+        <!-- Çalışan Paneli -->
+        <div id="employeeScreen" class="screen">
+            <h2><i class="fa-solid fa-users-gear"></i> Çalışan Paneli</h2>
+            
+            <!-- Araç Ekleme/Düzenleme -->
+            <div class="section-header">
+                <h3 id="carFormTitle"><i class="fa-solid fa-car-plus"></i> Yeni Araç Ekle</h3>
+                <input type="hidden" id="currentEditingCarId"> <!-- Düzenlenen aracın Firestore ID'si -->
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="newPlate">Plaka</label>
+                        <input type="text" id="newPlate" placeholder="örn: 34ABC123, ABC1234" maxlength="15" oninput="this.value = this.value.toUpperCase()">
+                        <div class="error-message" id="errorNewPlate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerName">Müşteri Adı (İsteğe Bağlı)</label>
+                        <input type="text" id="customerName" placeholder="Müşteri adı">
+                        <div class="error-message" id="errorCustomerName"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">Telefon (İsteğe Bağlı)</label>
+                        <input type="tel" id="customerPhone" placeholder="örn: 05551234567" maxlength="11">
+                        <div class="error-message" id="errorCustomerPhone"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="carModel">Araç Modeli (İsteğe Bağlı)</label>
+                        <input type="text" id="carModel" placeholder="Marka Model">
+                        <div class="error-message" id="errorCarModel"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceType">Hizmet Türü</label>
+                        <select id="serviceType">
+                            <option value="Dış Yıkama">Dış Yıkama</option>
+                            <option value="İç Dış Yıkama">İç Dış Yıkama</option>
+                            <option value="Detay Yıkama">Detay Yıkama</option>
+                            <option value="Cila & Koruma">Cila & Koruma</option>
+                        </select>
+                        <div class="error-message" id="errorServiceType"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="carStatus">Başlangıç Durumu</label>
+                        <select id="carStatus">
+                            <option value="inQueue">Sırada</option>
+                            <option value="exteriorWash">Dış Yıkamada</option>
+                            <option value="dryingArea">Kurulama Alanında</option>
+                            <option value="parkingArea">Park Alanında</option>
+                            <option value="delivered">Teslim Edildi</option>
+                        </select>
+                        <div class="error-message" id="errorCarStatus"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="estimatedTime">Tahmini Süre (dk) (İsteğe Bağlı)</label>
+                        <input type="number" id="estimatedTime" placeholder="örn: 45" min="1">
+                        <div class="error-message" id="errorEstimatedTime"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="carPrice">Fiyat (₺) (İsteğe Bağlı)</label>
+                        <input type="number" id="carPrice" placeholder="örn: 150" min="0">
+                        <div class="error-message" id="errorCarPrice"></div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="submitCarBtn" onclick="handleAddOrUpdateCar()"><i class="fa-solid fa-car-rear"></i> Araç Ekle</button>
+                <button class="btn btn-secondary" id="cancelCarEditBtn" style="display: none;" onclick="cancelCarEdit()"><i class="fa-solid fa-times"></i> Vazgeç</button>
+            </div>
+
+            <!-- Mevcut Araçlar -->
+            <h3><i class="fa-solid fa-list-check"></i> Mevcut Araçlar</h3>
+            <div id="employeeCarList">
+                <p style="text-align: center; color: #777;">Yükleniyor...</p>
+            </div>
+        </div>
+
+        <!-- Admin Paneli -->
+        <div id="adminScreen" class="screen">
+            <h2><i class="fa-solid fa-user-gear"></i> Admin Paneli</h2>
+            
+            <!-- Kullanıcı Ekleme -->
+            <div class="section-header">
+                <h3><i class="fa-solid fa-user-plus"></i> Yeni Kullanıcı Ekle</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="newUsername">Kullanıcı Adı</label>
+                        <input type="text" id="newUsername" placeholder="Kullanıcı adı">
+                        <div class="error-message" id="errorNewUsername"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Şifre</label>
+                        <input type="password" id="newPassword" placeholder="Şifre">
+                        <div class="error-message" id="errorNewPassword"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserRole">Rol</label>
+                        <select id="newUserRole">
+                            <option value="user">Çalışan</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="addUserBtn" onclick="addUser()"><i class="fa-solid fa-plus-circle"></i> Kullanıcı Ekle</button>
+            </div>
+
+            <!-- Kullanıcı Şifrelerini Yönet -->
+            <div class="section-header">
+                <h3><i class="fa-solid fa-user-lock"></i> Kullanıcı Şifrelerini Yönet</h3>
+                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                    Bu demo uygulamasında, kullanıcı şifreleri sadece yerel demo hesabı için güncellenir. Gerçek Firebase Auth projenizde,
+                    başka bir kullanıcının şifresini yönetmek için <a href="https://firebase.google.com/docs/auth/admin/manage-users#update_a_user" target="_blank" style="color: #667eea; text-decoration: underline;">Firebase Admin SDK</a> kullanmanız gerekir (arka uç sunucunuzda).
+                </p>
+                <div class="form-group">
+                    <label for="selectUserForPasswordReset">Şifresi Değişecek Kullanıcı</label>
+                    <select id="selectUserForPasswordReset">
+                        <option value="">Kullanıcı Seçin</option>
+                        <!-- Kullanıcılar JS ile doldurulacak -->
+                    </select>
+                    <div class="error-message" id="errorSelectUserForPasswordReset"></div>
+                </div>
+                <div class="form-group">
+                    <label for="selectedUserNewPassword">Yeni Şifre</label>
+                    <input type="password" id="selectedUserNewPassword" placeholder="Yeni şifreyi girin">
+                    <div class="error-message" id="errorSelectedUserNewPassword"></div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmSelectedUserNewPassword">Yeni Şifre Tekrar</label>
+                    <input type="password" id="confirmSelectedUserNewPassword" placeholder="Yeni şifreyi tekrar girin">
+                    <div class="error-message" id="errorConfirmSelectedUserNewPassword"></div>
+                </div>
+                <button class="btn btn-primary" id="resetSelectedUserPasswordBtn" onclick="resetSelectedUserPassword()"><i class="fa-solid fa-unlock"></i> Şifreyi Sıfırla</button>
+            </div>
+            
+            <!-- Şifremi Değiştir (Giriş Yapmış Kullanıcının Kendi Şifresi) -->
+            <div class="section-header">
+                <h3><i class="fa-solid fa-key"></i> Şifremi Değiştir (Kendi Hesabınız)</h3>
+                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                    Bu demo uygulamasında, şifreler sadece yerel demo hesabı için güncellenir. Gerçek Firebase Auth projenizde,
+                    kendi şifrenizi değiştirmek için <a href="https://firebase.google.com/docs/auth/web/manage-users#update_a_users_password" target="_blank" style="color: #667eea; text-decoration: underline;">Firebase Auth belgelerine</a> başvurun.
+                </p>
+                <div class="form-group">
+                    <label for="oldPassword">Eski Şifre</label>
+                    <input type="password" id="oldPassword" placeholder="Eski şifrenizi girin">
+                    <div class="error-message" id="errorOldPassword"></div>
+                </div>
+                <div class="form-group">
+                    <label for="newAuthPassword">Yeni Şifre</label>
+                    <input type="password" id="newAuthPassword" placeholder="Yeni şifrenizi girin">
+                    <div class="error-message" id="errorNewAuthPassword"></div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmNewAuthPassword">Yeni Şifre Tekrar</label>
+                    <input type="password" id="confirmNewAuthPassword" placeholder="Yeni şifrenizi tekrar girin">
+                    <div class="error-message" id="errorConfirmNewAuthPassword"></div>
+                </div>
+                <button class="btn btn-primary" id="changeMyOwnPasswordBtn" onclick="changeMyOwnPassword()"><i class="fa-solid fa-lock"></i> Şifremi Değiştir</button>
+            </div>
+
+            <!-- Mevcut Kullanıcılar (Demo Amaçlı Listeleme) -->
+            <h3><i class="fa-solid fa-users"></i> Mevcut Kullanıcılar (Demo Listesi)</h3>
+            <div id="userList" class="section-header" style="background:none; box-shadow:none;">
+                <p style="text-align: center; color: #777;">Yükleniyor...</p>
+            </div>
+        </div>
+
+        <!-- Raporlar -->
+        <div id="reportsScreen" class="screen">
+            <h2><i class="fa-solid fa-chart-simple"></i> Günlük Raporlar</h2>
+            
+            <div class="report-grid">
+                <div class="report-card">
+                    <div class="report-number" id="totalCars">0</div>
+                    <div class="report-label">Toplam Araç</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-number" id="washingCars">0</div>
+                    <div class="report-label">Dış Yıkamada</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-number" id="readyCars">0</div>
+                    <div class="report-label">Kurulama Alanında</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-number" id="deliveredCars">0</div>
+                    <div class="report-label">Teslim Edildi</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-number" id="avgRating">0.0</div>
+                    <div class="report-label">Ortalama Puan</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-number" id="totalRevenue">₺0</div>
+                    <div class="report-label">Toplam Gelir</div>
+                </div>
+            </div>
+
+            <div class="section-header detailed-car-list">
+                <h3><i class="fa-solid fa-table-list"></i> Detaylı Araç Listesi</h3>
+                <div id="detailedCarList">
+                    <p style="text-align: center; color: #777;">Yükleniyor...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bildirim -->
+    <div id="notification" class="notification"></div>
+
+    <script type="module">
+        // Firebase Modüllerinin Importları
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, onSnapshot, orderBy, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        
+        // --- Firebase Yapılandırması (Kullanıcı Tarafından Sağlandı) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBPQ3N_488wEu2lR3Ak63_Fp0FRo87nfSI",
+            authDomain: "drawguess-dd2ae.firebaseapp.com",
+            projectId: "drawguess-dd2ae",
+            storageBucket: "drawguess-dd2ae.firebasestorage.app",
+            messagingSenderId: "791576960769",
+            appId: "1:791576960769:web:fd1e6597ca5dae73e38500",
+            measurementId: "G-VW08E2BNL9"
+        };
+        // Firestore koleksiyon yolları için kullanılacak uygulama kimliği (proje kimliği)
+        const APP_ID_FOR_FIRESTORE_PATHS = firebaseConfig.projectId;
+
+
+        // --- Global Değişkenler ---
+        // Bu değişkenler window objesine atanarak HTML event handler'larından erişilebilir hale getirilir.
+        window.currentUser = null;
+        window.selectedRating = 0;
+        window.cars = []; // Firestore'dan çekilecek dinamik veriler
+        window.feedback = []; // Firestore'dan çekilecek dinamik veriler
+
+        // Demo kullanıcıları (Firebase Auth entegre edilmediği için yerel olarak tutulur)
+        window.users = [
+            { username: "admin", password: "668857", role: "admin" }, // Admin şifresi güncellendi
+            { username: "user1", password: "user123", role: "user" }
+        ];
+
+        // Firebase instance'ları (window objesine atanır)
+        window.firebaseApp = null;
+        window.firestoreDb = null;
+        window.firebaseAuth = null;
+        window.currentUserId = null;
+        window.isFirebaseReady = false;
+
+        // Firestore koleksiyon referansları (window objesine atanır)
+        window.carsCollectionRef = null;
+        window.feedbackCollectionRef = null;
+        window.historicalCarsCollectionRef = null; // Arşivlenmiş araçlar
+        window.historicalFeedbackCollectionRef = null; // Arşivlenmiş geri bildirimler
+        window.settingsDocRef = null; // Günlük temizlik ayarları için
+
+        // Firestore Dinleyicileri için unsubscribe fonksiyonları
+        let carsUnsubscribe = null;
+        let feedbackUnsubscribe = null;
+
+        // --- Firebase Başlatma ve Yönetim Fonksiyonları ---
+
+        /**
+         * Firebase'i başlatır ve kimlik doğrulama durumunu yönetir.
+         * window.onload tarafından çağrılır.
+         */
+        async function initializeFirebaseAndAuth() {
+            console.log("Firebase başlatılıyor...");
+            try {
+                // Firebase uygulamalarını ve servislerini başlat
+                window.firebaseApp = initializeApp(firebaseConfig);
+                window.firestoreDb = getFirestore(window.firebaseApp);
+                window.firebaseAuth = getAuth(window.firebaseApp);
+
+                // Koleksiyon referanslarını tanımla
+                window.carsCollectionRef = collection(window.firestoreDb, 'artifacts', APP_ID_FOR_FIRESTORE_PATHS, 'public', 'data', 'cars');
+                window.feedbackCollectionRef = collection(window.firestoreDb, 'artifacts', APP_ID_FOR_FIRESTORE_PATHS, 'public', 'data', 'feedback');
+                window.historicalCarsCollectionRef = collection(window.firestoreDb, 'artifacts', APP_ID_FOR_FIRESTORE_PATHS, 'public', 'data', 'historical_cars');
+                window.historicalFeedbackCollectionRef = collection(window.firestoreDb, 'artifacts', APP_ID_FOR_FIRESTORE_PATHS, 'public', 'data', 'historical_feedback');
+                window.settingsDocRef = doc(window.firestoreDb, 'artifacts', APP_ID_FOR_FIRESTORE_PATHS, 'public', 'data', 'settings', 'daily_cleanup');
+                
+                console.log("Firebase servisleri başlatıldı. Project ID:", APP_ID_FOR_FIRESTORE_PATHS);
+
+                // Kimlik doğrulama durumu değiştiğinde tetiklenir
+                onAuthStateChanged(window.firebaseAuth, async (user) => {
+                    if (user) {
+                        window.currentUserId = user.uid;
+                        console.log("Firebase Auth Durumu Değişti: Giriş yapıldı:", user.uid);
+                    } else {
+                        // Anonim veya çıkış yapılmışsa rastgele bir ID kullan
+                        window.currentUserId = crypto.randomUUID();
+                        console.log("Firebase Auth Durumu Değişti: Çıkış yapıldı / Anonim. Rastgele ID kullanılıyor:", window.currentUserId);
+                    }
+                    window.isFirebaseReady = true;
+                    console.log("Firebase hazır bayrağı ayarlandı. appReadySetup çağrılıyor.");
+                    await appReadySetup();
+                });
+
+                // Başlangıç kimlik doğrulamasını yap
+                // __initial_auth_token burada doğrudan Canvas ortamı tarafından sağlanmadığı için anonim giriş varsayılır.
+                // Eğer özel bir token kullanmanız gerekirse, bu satırı uygun şekilde değiştirmeniz gerekir.
+                console.log("Anonim giriş deniyor...");
+                await signInAnonymously(window.firebaseAuth);
+                console.log("Anonim olarak giriş yapıldı.");
+
+            } catch (e) {
+                console.error("Firebase başlatma veya kimlik doğrulama başarısız oldu:", e);
+                showNotification("Firebase başlatılırken veya bağlanırken hata oluştu!", "error");
+            }
+        }
+
+        /**
+         * Firebase bağlantısı kurulduktan sonra Firestore dinleyicilerini ayarlar.
+         * window.cars ve window.feedback'i gerçek zamanlı olarak günceller.
+         */
+        function setupFirestoreListeners() {
+            if (!window.firestoreDb) {
+                console.error("Firestore DB başlatılmadı. Dinleyiciler ayarlanamıyor.");
+                return;
+            }
+            // Mevcut dinleyicileri kapat (önceki dinlemelerin çift tetiklenmesini önlemek için)
+            if (carsUnsubscribe) carsUnsubscribe();
+            if (feedbackUnsubscribe) feedbackUnsubscribe();
+
+            console.log("Firestore dinleyicileri ayarlanıyor...");
+
+            // Arabalar koleksiyonu için dinleyici
+            carsUnsubscribe = onSnapshot(query(window.carsCollectionRef), (snapshot) => {
+                window.cars = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("Firestore'dan araçlar güncellendi. Araç sayısı:", window.cars.length);
+                // İlgili UI'ları yeniden render et
+                if (document.getElementById('employeeScreen').classList.contains('active')) {
+                    renderEmployeeCarList();
+                }
+                if (document.getElementById('reportsScreen').classList.contains('active')) {
+                    renderReports();
+                }
+                const plateSearchInput = document.getElementById('plateSearch');
+                if (document.getElementById('customerScreen').classList.contains('active') && plateSearchInput.value.trim().length > 1) {
+                    searchCar();
+                }
+            }, (error) => {
+                console.error("Cars collection snapshot error:", error);
+                showNotification("Araç verileri yüklenirken hata oluştu!", "error");
+            });
+
+            // Geri bildirimler koleksiyonu için dinleyici
+            feedbackUnsubscribe = onSnapshot(query(window.feedbackCollectionRef), (snapshot) => {
+                window.feedback = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("Firestore'dan geri bildirimler güncellendi. Geri bildirim sayısı:", window.feedback.length);
+                if (document.getElementById('reportsScreen').classList.contains('active')) {
+                    renderReports();
+                }
+            }, (error) => {
+                console.error("Feedback collection snapshot error:", error);
+                showNotification("Geri bildirim verileri yüklenirken hata oluştu!", "error");
+            });
+        }
+
+        /**
+         * Firebase hazır olduğunda çalışacak ana kurulum fonksiyonu.
+         */
+        async function appReadySetup() {
+            if (!window.isFirebaseReady) {
+                console.warn("appReadySetup çağrıldı ama Firebase henüz hazır değil.");
+                return;
+            }
+            console.log("appReadySetup başlatılıyor...");
+
+            setupFirestoreListeners(); // Firestore dinleyicilerini başlat
+            await performDailyCleanup(); // Günlük temizliği çalıştır ve arşivle
+
+            // localStorage'dan kullanıcı oturumunu geri yüklemeyi dene
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                window.currentUser = JSON.parse(storedUser);
+                console.log("Kullanıcı localStorage'dan geri yüklendi:", window.currentUser.username);
+            } else {
+                console.log("localStorage'da kullanıcı bulunamadı.");
+            }
+            updateUI();
+            // Giriş yapmış kullanıcıları ilgili panellerine yönlendir, aksi takdirde müşteri sorgu ekranını göster
+            if (window.currentUser && window.currentUser.role === 'admin') {
+                showAdminPanel(); 
+            } else if (window.currentUser && window.currentUser.role === 'user') {
+                showEmployeePanel();
+            } else {
+                showCustomerSearch(); // Uygulama açıldığında varsayılan ekran: Müşteri Sorgu
+            }
+        }
+        
+        // --- Genel Yardımcı Fonksiyonlar ---
+
+        /**
+         * Tüm ekranları gizler ve belirtilen ekranı gösterir.
+         * @param {string} screenId - Gösterilecek ekranın ID'si.
+         */
+        window.showScreen = function(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        };
+
+        /**
+         * Navigasyon butonlarının görünürlüğünü mevcut kullanıcının kimlik doğrulama durumu ve rolüne göre günceller.
+         */
+        window.updateUI = function() {
+            const loginBtn = document.getElementById('loginBtn');
+            const customerBtn = document.getElementById('customerBtn');
+            const employeeBtn = document.getElementById('employeeBtn');
+            const adminBtn = document.getElementById('adminBtn');
+            const reportsBtn = document.getElementById('reportsBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            // Müşteri sorgu butonu her zaman görünür
+            customerBtn.style.display = 'block';
+
+            if (window.currentUser) {
+                // Giriş yapılmışsa
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                
+                if (window.currentUser.role === 'user') { // Çalışan rolü
+                    employeeBtn.style.display = 'block';
+                    adminBtn.style.display = 'none';
+                    reportsBtn.style.display = 'none';
+                } else if (window.currentUser.role === 'admin') { // Admin rolü
+                    employeeBtn.style.display = 'block'; // Adminler de çalışan panelini kullanabilir
+                    adminBtn.style.display = 'block';
+                    reportsBtn.style.display = 'block';
+                }
+            } else {
+                // Giriş yapılmamışsa
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                employeeBtn.style.display = 'none';
+                adminBtn.style.display = 'none';
+                reportsBtn.style.display = 'none';
+            }
+        };
+
+        /**
+         * Ekranın sağ üstünde bir bildirim mesajı gösterir.
+         * @param {string} message - Gösterilecek mesaj.
+         * @param {'success'|'error'|'info'} type - Bildirim türü (rengi belirler).
+         */
+        window.showNotification = function(message, type) {
+            const notification = document.getElementById('notification');
+            if (!notification) {
+                console.error("Bildirim elementi bulunamadı!");
+                return;
+            }
+            notification.textContent = message;
+            notification.className = `notification ${type}`; // Sınıfları sıfırla ve türü ekle
+            // Türe göre ikon ekle
+            if (type === 'success') {
+                notification.innerHTML = '<i class="fa-solid fa-check-circle"></i> ' + message;
+            } else if (type === 'error') {
+                notification.innerHTML = '<i class="fa-solid fa-times-circle"></i> ' + message;
+            } else if (type === 'info') {
+                notification.innerHTML = '<i class="fa-solid fa-info-circle"></i> ' + message;
+            }
+            
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000); // 3 saniye sonra bildirim kaybolur
+        };
+
+        /**
+         * Belirtilen bir butonu asenkron bir işlem sırasında devre dışı bırakır/etkinleştirir.
+         * @param {string} buttonId - Butonun ID'si.
+         * @param {boolean} disabled - Devre dışı bırakmak için true, etkinleştirmek için false.
+         */
+        function toggleButtonState(buttonId, disabled) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.disabled = disabled;
+            }
+        }
+
+        /**
+         * Form alanlarını doğrular ve hata mesajlarını gösterir.
+         * @param {Array<Object>} fields - Doğrulanacak alanların listesi.
+         * @returns {boolean} Tüm alanlar geçerliyse true, aksi takdirde false.
+         */
+        function validateForm(fields) {
+            let isValid = true;
+            fields.forEach(field => {
+                const inputElement = document.getElementById(field.id);
+                const errorElement = document.getElementById(`error${capitalizeFirstLetter(field.id)}`);
+                if (!inputElement) {
+                    console.warn(`Input elementi bulunamadı: ${field.id}`);
+                    return;
+                }
+                
+                inputElement.classList.remove('is-invalid');
+                if (errorElement) errorElement.textContent = ''; // Hata mesajını temizle
+
+                let errorMessage = '';
+                const inputValue = inputElement.value.trim();
+
+                if (field.required && !inputValue) {
+                    errorMessage = field.name + ' alanı boş bırakılamaz.';
+                } else if (inputValue) { // Eğer değer girilmişse özel validasyonları uygula
+                    if (field.type === 'phone' && !/^\d{10,11}$/.test(inputValue)) {
+                        errorMessage = 'Telefon numarası 10 veya 11 hane olmalı ve sadece rakamlardan oluşmalıdır.';
+                    } else if (field.type === 'number' && (isNaN(parseFloat(inputValue)) || parseFloat(inputValue) < (field.min || 0))) {
+                        errorMessage = field.name + ' pozitif bir sayı olmalıdır.';
+                    } else if (field.type === 'password' && inputValue.length < 6) {
+                        errorMessage = field.name + ' en az 6 karakter olmalıdır.';
+                    } else if (field.type === 'confirmPassword') {
+                        const passwordInput = document.getElementById(field.matchId);
+                        if (inputValue !== passwordInput.value) {
+                            errorMessage = 'Şifreler eşleşmiyor.';
+                        }
+                    }
+                }
+
+                if (errorMessage) {
+                    inputElement.classList.add('is-invalid');
+                    if (errorElement) errorElement.textContent = errorMessage;
+                    isValid = false;
+                }
+            });
+            return isValid;
+        }
+
+        /**
+         * Giriş alanlarında Enter tuşuna basıldığında girişi tetikler.
+         * @param {KeyboardEvent} event - Klavye olayı.
+         */
+        window.handleEnterKey = function(event) {
+            if (event.key === 'Enter') {
+                window.login();
+            }
+        };
+
+        /**
+         * Sağlanan kimlik bilgileriyle bir kullanıcı girişi yapmaya çalışır.
+         */
+        window.login = function() {
+            console.log("login() çağrıldı.");
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            // Önceki doğrulama stillerini/mesajlarını temizle
+            usernameInput.classList.remove('is-invalid');
+            passwordInput.classList.remove('is-invalid');
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            let isValid = true;
+            if (!username) {
+                usernameInput.classList.add('is-invalid');
+                isValid = false;
+            }
+            if (!password) {
+                passwordInput.classList.add('is-invalid');
+                isValid = false;
+            }
+            if (!isValid) {
+                showNotification('Kullanıcı adı ve şifre giriniz!', 'error');
+                return;
+            }
+
+            console.log(`Giriş denemesi: Kullanıcı Adı: ${username}, Şifre: ${password ? '*****' : ''}`);
+            const user = window.users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                window.currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user)); // Giriş durumunu kalıcı yap
+                updateUI();
+                showNotification(`Hoş geldiniz ${user.username}!`, 'success');
+                // Role göre yönlendirme
+                if (user.role === 'admin') {
+                    showAdminPanel(); 
+                } else if (user.role === 'user') { // Çalışan
+                    showEmployeePanel();
+                }
+                usernameInput.value = ''; // Alanları temizle
+                passwordInput.value = '';
+                console.log("Giriş başarılı. Kullanıcı:", user.username, "Yönlendiriliyor...");
+            } else {
+                showNotification('Kullanıcı adı veya şifre hatalı!', 'error');
+                usernameInput.classList.add('is-invalid');
+                passwordInput.classList.add('is-invalid');
+                console.log("Giriş başarısız: Yanlış kullanıcı adı veya şifre.");
+            }
+        };
+
+        /**
+         * Mevcut kullanıcıyı çıkış yapar.
+         */
+        window.logout = function() {
+            window.currentUser = null;
+            localStorage.removeItem('currentUser'); // Kalıcı durumu temizle
+            updateUI();
+            showLogin(); // Giriş ekranına dön
+            showNotification('Başarıyla çıkış yapıldı!', 'success');
+        };
+
+        /**
+         * Hızlı giriş butonları kaldırıldı. Bu fonksiyon artık kullanılmıyor.
+         */
+        // window.quickLogin = function(roleType) { ... };
+
+        /**
+         * Giriş ekranını gösterir.
+         */
+        window.showLogin = function() {
+            showScreen('loginScreen');
+        };
+
+        /**
+         * Müşteri sorgu ekranını gösterir ve başlatır.
+         */
+        window.showCustomerSearch = function() {
+            showScreen('customerScreen');
+            document.getElementById('plateSearch').value = ''; // Arama alanını temizle
+            document.getElementById('carResults').innerHTML = '<p style="text-align: center; color: #777;">Plaka numarasını girerek araç durumunu sorgulayabilirsiniz.</p>';
+            window.selectedRating = 0; // Anketi sıfırla
+            document.getElementById('feedbackText').value = '';
+            document.querySelectorAll('#ratingStars .star').forEach(star => star.classList.remove('active'));
+            updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
+        };
+
+        /**
+         * Çalışan panelini gösterir ve mevcut araç listesini render eder.
+         */
+        window.showEmployeePanel = function() {
+            if (!window.currentUser || (window.currentUser.role !== 'user' && window.currentUser.role !== 'admin')) {
+                showNotification('Bu alana erişim izniniz yok!', 'error');
+                showLogin(); // Yetkisizse giriş ekranına yönlendir
+                return;
+            }
+            showScreen('employeeScreen');
+            cancelCarEdit(); // Formu her zaman temiz bir şekilde göster
+            updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
+            // Data will be rendered via Firestore listener in setupFirestoreListeners
+        };
+
+        /**
+         * Admin panelini (kullanıcı yönetimi) gösterir ve mevcut kullanıcı listesini render eder.
+         */
+        window.showAdminPanel = function() {
+            if (!window.currentUser || window.currentUser.role !== 'admin') {
+                showNotification('Bu alana erişim izniniz yok!', 'error');
+                showLogin(); // Yetkisizse giriş ekranına yönlendir
+                return;
+            }
+            showScreen('adminScreen');
+            renderUserList(); // Admin paneline kullanıcıları render et
+            populateUserSelectionForPasswordReset(); // Kullanıcı seçme dropdown'ını doldur
+            
+            // Yeni kullanıcı formunu temizle
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newUserRole').value = 'user';
+            
+            // Kendi şifre değiştirme formunu temizle
+            document.getElementById('oldPassword').value = '';
+            document.getElementById('newAuthPassword').value = '';
+            document.getElementById('confirmNewAuthPassword').value = '';
+            
+            // Kullanıcı şifre sıfırlama formunu temizle
+            document.getElementById('selectUserForPasswordReset').value = '';
+            document.getElementById('selectedUserNewPassword').value = '';
+            document.getElementById('confirmSelectedUserNewPassword').value = '';
+
+            // Tüm hata mesajlarını ve invalid stillerini temizle
+            document.querySelectorAll('#adminScreen .error-message').forEach(el => el.textContent = '');
+            document.querySelectorAll('#adminScreen input, #adminScreen select').forEach(el => el.classList.remove('is-invalid'));
+
+            updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
+        };
+
+        /**
+         * Raporlar ekranını gösterir ve raporları oluşturur.
+         */
+        window.showReports = function() {
+            if (!window.currentUser || window.currentUser.role !== 'admin') {
+                showNotification('Bu alana erişim izniniz yok!', 'error');
+                showLogin(); // Yetkisizse giriş ekranına yönlendir
+                return;
+            }
+            showScreen('reportsScreen');
+            renderReports(); // Raporları oluştur ve göster
+            updateUI(); // Bu ekrana geçişte butonların doğru olduğundan emin ol
+        };
+
+        /**
+         * Araç kartlarını belirtilen HTML öğesine render eder.
+         * @param {string} targetElementId - Araçların render edileceği öğenin ID'si.
+         * @param {Array<Object>} carsToRender - Görüntülenecek araç nesneleri dizisi.
+         * @param {boolean} allowCarActions - Çalışan/admin paneli için render ediliyorsa true (aksiyon butonları ekler).
+         * @param {boolean} showDrawer - Detaylar genişletilebilir bir çekmecede gösterilmeli mi.
+         */
+        function renderCars(targetElementId, carsToRender, allowCarActions = false, showDrawer = false) {
+            const container = document.getElementById(targetElementId);
+            if (!container) {
+                console.error(`Hedef öğe "${targetElementId}" bulunamadı.`);
+                return;
+            }
+            container.innerHTML = ''; // Önceki sonuçları temizle
+
+            if (carsToRender.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #777;">Hiç araç bulunamadı.</p>';
+                return;
+            }
+
+            // `car.entryTime` tarihine göre en yeniden en eskiye sırala
+            const sortedCars = [...carsToRender].sort((a, b) => new Date(b.entryTime) - new Date(a.entryTime));
+
+            sortedCars.forEach(car => {
+                const entryDate = formatDate(car.entryTime);
+                const entryTime = formatTime(car.entryTime);
+                const progressWidth = car.currentProgress > 0 ? car.currentProgress : 0;
+
+                // Silme butonu sadece admin için gösterilsin
+                const showDeleteButton = window.currentUser && window.currentUser.role === 'admin';
+                const showEditButton = window.currentUser && (window.currentUser.role === 'admin' || window.currentUser.role === 'user');
+
+                // Durumun Türkçe metni ve CSS sınıfı eşleştirmesi
+                const statusMap = {
+                    'inQueue': { text: 'Sırada', class: 'inqueue' },
+                    'exteriorWash': { text: 'Dış Yıkamada', class: 'exteriorwash' },
+                    'dryingArea': { text: 'Kurulama Alanında', class: 'dryingarea' },
+                    'parkingArea': { text: 'Park Alanında', class: 'parkingarea' },
+                    'delivered': { text: 'Teslim Edildi', class: 'delivered' }
+                };
+                const currentStatusInfo = statusMap[car.status] || { text: capitalizeFirstLetter(car.status), class: car.status };
+
+
+                const carDetailsHtml = `
+                    <div class="car-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Müşteri Adı</div>
+                            <div class="detail-value">${car.customer || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Telefon</div>
+                            <div class="detail-value">${car.phone || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Araç Modeli</div>
+                            <div class="detail-value">${car.model || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Hizmet Türü</div>
+                            <div class="detail-value">${car.serviceType || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Giriş Zamanı</div>
+                            <div class="detail-value">${entryDate} ${entryTime}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Tahmini Süre</div>
+                            <div class="detail-value">${car.estimatedTime ? car.estimatedTime + ' dk' : 'N/A'}</div>
+                        </div>
+                         <div class="detail-item">
+                            <div class="detail-label">Fiyat</div>
+                            <div class="detail-value">₺${car.price ? car.price.toLocaleString('tr-TR') : 'N/A'}</div>
+                        </div>
+                         <div class="detail-item">
+                            <div class="detail-label">Ekleyen</div>
+                            <div class="detail-value">${car.addedBy || 'N/A'}</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progressWidth}%;"></div>
+                    </div>
+                `;
+
+                const carCardHtml = `
+                    <div class="car-card">
+                        <div class="car-header">
+                            <div class="plate-number">${car.plate.toUpperCase()}</div>
+                            <div class="status ${currentStatusInfo.class}">${currentStatusInfo.text}</div>
+                        </div>
+                        ${showDrawer ? `
+                        <details>
+                            <summary>Detayları Gör <i class="fa-solid fa-angle-right"></i></summary>
+                            ${carDetailsHtml}
+                        </details>
+                        ` : carDetailsHtml}
+
+                        ${allowCarActions && (window.currentUser && (window.currentUser.role === 'admin' || window.currentUser.role === 'user')) ? `
+                        <div class="status-controls">
+                            <button class="status-btn inqueue ${car.status === 'inQueue' ? 'active' : ''}" onclick="updateCarStatus('${car.id}', 'inQueue')">
+                                <i class="fa-solid fa-hourglass-half"></i> Sırada
+                            </button>
+                            <button class="status-btn exteriorwash ${car.status === 'exteriorWash' ? 'active' : ''}" onclick="updateCarStatus('${car.id}', 'exteriorWash')">
+                                <i class="fa-solid fa-water"></i> Dış Yıkamada
+                            </button>
+                            <button class="status-btn dryingarea ${car.status === 'dryingArea' ? 'active' : ''}" onclick="updateCarStatus('${car.id}', 'dryingArea')">
+                                <i class="fa-solid fa-wind"></i> Kurulama Alanında
+                            </button>
+                            <button class="status-btn parkingarea ${car.status === 'parkingArea' ? 'active' : ''}" onclick="updateCarStatus('${car.id}', 'parkingArea')">
+                                <i class="fa-solid fa-parking"></i> Park Alanında
+                            </button>
+                            <button class="status-btn delivered ${car.status === 'delivered' ? 'active' : ''}" onclick="updateCarStatus('${car.id}', 'delivered')">
+                                <i class="fa-solid fa-truck"></i> Teslim Edildi
+                            </button>
+                        </div>
+                        <div class="button-group" style="justify-content: center; margin-top: 10px;">
+                           ${showEditButton ? `<button class="btn btn-secondary" onclick="editCar('${car.id}')"><i class="fa-solid fa-edit"></i> Düzenle</button>` : ''}
+                           ${showDeleteButton ? `<button class="btn btn-danger" onclick="deleteCar('${car.id}')"><i class="fa-solid fa-trash-alt"></i> Sil</button>` : ''}
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', carCardHtml);
+            });
+        }
+
+        /**
+         * Kullanıcının girdiği plaka numarasına göre araçları filtreler.
+         */
+        window.searchCar = function() {
+            const plateSearchInput = document.getElementById('plateSearch');
+            const searchTerm = plateSearchInput.value.trim().toUpperCase();
+            
+            if (searchTerm.length < 2) {
+                document.getElementById('carResults').innerHTML = '<p style="text-align: center; color: #777;">Plaka numarasını girerek araç durumunu sorgulayabilirsiniz.</p>';
+                return;
+            }
+
+            const filteredCars = window.cars.filter(car => 
+                car.plate.toUpperCase().includes(searchTerm)
+            );
+            renderCars('carResults', filteredCars, false, false); 
+        };
+
+        /**
+         * Memnuniyet anketi için seçilen puanı ayarlar ve yıldızların görselini günceller.
+         * @param {number} rating - Seçilen puan (1-5).
+         */
+        window.setRating = function(rating) {
+            window.selectedRating = rating;
+            const stars = document.querySelectorAll('#ratingStars .star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        };
+
+        /**
+         * Müşteri geri bildirimini (puan ve yorum) Firestore'a gönderir.
+         */
+        window.submitFeedback = async function() {
+            if (!window.firestoreDb || !window.feedbackCollectionRef) {
+                showNotification("Veritabanı bağlantısı henüz hazır değil.", "error");
+                return;
+            }
+            const feedbackText = document.getElementById('feedbackText').value.trim();
+            
+            if (window.selectedRating === 0 && !feedbackText) {
+                showNotification('Lütfen bir puan verin veya yorum yazın!', 'error');
+                return;
+            }
+
+            toggleButtonState('submitFeedbackBtn', true); // Butonu devre dışı bırak
+            try {
+                await addDoc(window.feedbackCollectionRef, {
+                    rating: window.selectedRating,
+                    comment: feedbackText,
+                    timestamp: new Date().toISOString(),
+                    plate: document.getElementById('plateSearch').value.trim().toUpperCase() || 'N/A'
+                });
+                showNotification('Geri bildiriminiz başarıyla gönderildi!', 'success');
+                
+                // Anketi sıfırla
+                window.selectedRating = 0;
+                document.getElementById('feedbackText').value = '';
+                document.querySelectorAll('#ratingStars .star').forEach(star => star.classList.remove('active'));
+                
+            } catch (e) {
+                console.error("Geri bildirim gönderilirken hata oluştu:", e);
+                showNotification("Geri bildirim gönderilirken hata oluştu!", "error");
+            } finally {
+                toggleButtonState('submitFeedbackBtn', false); // Butonu tekrar etkinleştir
+            }
+        };
+
+        /**
+         * Sisteme yeni bir kullanıcı ekler (Sadece Admin).
+         */
+        window.addUser = async function() {
+            if (!window.currentUser || window.currentUser.role !== 'admin') {
+                showNotification('Sadece adminler kullanıcı ekleyebilir!', 'error');
+                return;
+            }
+
+            const newUsername = document.getElementById('newUsername');
+            const newPassword = document.getElementById('newPassword');
+            const newUserRole = document.getElementById('newUserRole');
+
+            const fields = [
+                { id: 'newUsername', name: 'Kullanıcı adı', required: true },
+                { id: 'newPassword', name: 'Şifre', required: true, type: 'password' }
+            ];
+            if (!validateForm(fields)) {
+                showNotification('Lütfen tüm zorunlu alanları doldurun!', 'error');
+                return;
+            }
+
+            if (window.users.some(u => u.username === newUsername.value.trim())) {
+                showNotification('Bu kullanıcı adı zaten mevcut!', 'error');
+                newUsername.classList.add('is-invalid');
+                document.getElementById('errorNewUsername').textContent = 'Bu kullanıcı adı zaten mevcut.';
+                return;
+            }
+            
+            toggleButtonState('addUserBtn', true); // Butonu devre dışı bırak
+            try {
+                window.users.push({ username: newUsername.value.trim(), password: newPassword.value.trim(), role: newUserRole.value });
+                showNotification(`'${newUsername.value.trim()}' kullanıcısı (${newUserRole.value === 'admin' ? 'Admin' : 'Çalışan'}) başarıyla eklendi!`, 'success');
+                
+                newUsername.value = '';
+                newPassword.value = '';
+                newUserRole.value = 'user';
+                renderUserList(); // Kullanıcı listesini güncelle
+                populateUserSelectionForPasswordReset(); // Kullanıcı seçme dropdown'ını güncelle
+            } catch (e) {
+                console.error("Kullanıcı eklenirken hata oluştu:", e);
+                showNotification("Kullanıcı eklenirken hata oluştu!", "error");
+            } finally {
+                toggleButtonState('addUserBtn', false); // Butonu tekrar etkinleştir
+            }
+        };
+
+        /**
+         * Mevcut kullanıcıların listesini render eder (Sadece Admin).
+         */
+        function renderUserList() {
+            const userListContainer = document.getElementById('userList');
+            if (!userListContainer) return;
+
+            userListContainer.innerHTML = ''; // Mevcut listeyi temizle
+
+            if (window.users.length === 0) {
+                userListContainer.innerHTML = '<p style="text-align: center; color: #777;">Sistemde kayıtlı kullanıcı bulunmuyor.</p>';
+                return;
+            }
+
+            const userCardsHtml = window.users.map(user => `
+                <div class="car-card" style="margin-bottom: 15px; padding: 15px;">
+                    <div class="car-header" style="margin-bottom: 5px;">
+                        <span class="plate-number" style="font-size: 20px;">${user.username}</span>
+                        <span class="status ${user.role === 'admin' ? 'ready' : 'delivered'}" style="font-size: 11px;">
+                            ${user.role === 'admin' ? 'Admin' : 'Çalışan'}
+                        </span>
+                    </div>
+                    <div class="detail-item" style="padding: 8px;">
+                        <div class="detail-label">Şifre</div>
+                        <div class="detail-value">${user.password}</div>
+                    </div>
+                </div>
+            `).join('');
+            userListContainer.innerHTML = userCardsHtml;
+        }
+
+        /**
+         * Şifre değiştirmek için kullanıcı seçimi dropdown'ını doldurur.
+         */
+        function populateUserSelectionForPasswordReset() {
+            const selectElement = document.getElementById('selectUserForPasswordReset');
+            if (!selectElement) return;
+
+            selectElement.innerHTML = '<option value="">Kullanıcı Seçin</option>'; // Varsayılan seçeneği ekle ve temizle
+
+            window.users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.username;
+                option.textContent = `${user.username} (${user.role === 'admin' ? 'Admin' : 'Çalışan'})`;
+                selectElement.appendChild(option);
+            });
+        }
+
+        /**
+         * Giriş yapmış kullanıcının kendi şifresini değiştirir.
+         */
+        window.changeMyOwnPassword = async function() {
+            if (!window.currentUser) {
+                showNotification('Şifre değiştirmek için giriş yapmalısınız!', 'error');
+                return;
+            }
+
+            const oldPasswordInput = document.getElementById('oldPassword');
+            const newAuthPasswordInput = document.getElementById('newAuthPassword');
+            const confirmNewAuthPasswordInput = document.getElementById('confirmNewAuthPassword');
+
+            const fields = [
+                { id: 'oldPassword', name: 'Eski Şifre', required: true },
+                { id: 'newAuthPassword', name: 'Yeni Şifre', required: true, type: 'password' },
+                { id: 'confirmNewAuthPassword', name: 'Yeni Şifre Tekrar', required: true, type: 'confirmPassword', matchId: 'newAuthPassword' }
+            ];
+
+            if (!validateForm(fields)) {
+                showNotification('Lütfen tüm şifre alanlarını doğru doldurun!', 'error');
+                return;
+            }
+
+            if (oldPasswordInput.value !== window.currentUser.password) {
+                showNotification('Eski şifreniz yanlış!', 'error');
+                oldPasswordInput.classList.add('is-invalid');
+                document.getElementById('errorOldPassword').textContent = 'Eski şifre yanlış.';
+                return;
+            }
+
+            if (newAuthPasswordInput.value === oldPasswordInput.value) {
+                showNotification('Yeni şifre eski şifre ile aynı olamaz!', 'error');
+                newAuthPasswordInput.classList.add('is-invalid');
+                document.getElementById('errorNewAuthPassword').textContent = 'Yeni şifre eski şifre ile aynı olamaz.';
+                return;
+            }
+
+            toggleButtonState('changeMyOwnPasswordBtn', true);
+            showNotification('Şifre güncelleniyor...', 'info');
+            try {
+                // Demo için yerel kullanıcı dizisini güncelle
+                const userIndex = window.users.findIndex(u => u.username === window.currentUser.username);
+                if (userIndex !== -1) {
+                    window.users[userIndex].password = newAuthPasswordInput.value;
+                    window.currentUser.password = newAuthPasswordInput.value; // Güncel oturumu da güncelle
+                    localStorage.setItem('currentUser', JSON.stringify(window.currentUser)); // Local storage'ı güncelle
+                    showNotification('Şifreniz başarıyla değiştirildi!', 'success');
+                    
+                    oldPasswordInput.value = '';
+                    newAuthPasswordInput.value = '';
+                    confirmNewAuthPasswordInput.value = '';
+                    renderUserList(); // Kullanıcı listesini güncelle
+                    populateUserSelectionForPasswordReset(); // Dropdown'ı güncelle
+                } else {
+                    showNotification('Kullanıcı bulunamadı!', 'error');
+                }
+            } catch (e) {
+                console.error("Şifre değiştirilirken hata oluştu:", e);
+                showNotification("Şifre değiştirilirken hata oluştu!", "error");
+            } finally {
+                toggleButtonState('changeMyOwnPasswordBtn', false);
+            }
+        };
+
+        /**
+         * Seçilen kullanıcının şifresini admin olarak sıfırlar/değiştirir.
+         */
+        window.resetSelectedUserPassword = async function() {
+            if (!window.currentUser || window.currentUser.role !== 'admin') {
+                showNotification('Bu işlemi yapmaya yetkiniz yok!', 'error');
+                return;
+            }
+
+            const selectUserForPasswordReset = document.getElementById('selectUserForPasswordReset');
+            const selectedUserNewPassword = document.getElementById('selectedUserNewPassword');
+            const confirmSelectedUserNewPassword = document.getElementById('confirmSelectedUserNewPassword');
+
+            const fields = [
+                { id: 'selectUserForPasswordReset', name: 'Kullanıcı', required: true },
+                { id: 'selectedUserNewPassword', name: 'Yeni Şifre', required: true, type: 'password' },
+                { id: 'confirmSelectedUserNewPassword', name: 'Yeni Şifre Tekrar', required: true, type: 'confirmPassword', matchId: 'selectedUserNewPassword' }
+            ];
+
+            if (!validateForm(fields)) {
+                showNotification('Lütfen tüm alanları doğru doldurun!', 'error');
+                return;
+            }
+
+            const targetUsername = selectUserForPasswordReset.value;
+            const newPassword = selectedUserNewPassword.value;
+
+            const targetUser = window.users.find(u => u.username === targetUsername);
+
+            if (!targetUser) {
+                showNotification('Seçilen kullanıcı bulunamadı!', 'error');
+                return;
+            }
+            if (targetUser.password === newPassword) {
+                showNotification('Yeni şifre eski şifre ile aynı olamaz!', 'error');
+                selectedUserNewPassword.classList.add('is-invalid');
+                document.getElementById('errorSelectedUserNewPassword').textContent = 'Yeni şifre eski şifre ile aynı olamaz.';
+                return;
+            }
+
+            toggleButtonState('resetSelectedUserPasswordBtn', true);
+            showNotification(`'${targetUsername}' kullanıcısının şifresi güncelleniyor...`, 'info');
+            try {
+                const userIndex = window.users.findIndex(u => u.username === targetUsername);
+                if (userIndex !== -1) {
+                    window.users[userIndex].password = newPassword;
+                    showNotification(`'${targetUsername}' kullanıcısının şifresi başarıyla sıfırlandı!`, 'success');
+                    
+                    selectUserForPasswordReset.value = '';
+                    selectedUserNewPassword.value = '';
+                    confirmSelectedUserNewPassword.value = '';
+                    renderUserList(); // Kullanıcı listesini güncelle
+                    // Eğer şifresi değişen kullanıcı o an giriş yapmış kullanıcı ise, kendi localStorage'ını da günellemeli
+                    if (window.currentUser && window.currentUser.username === targetUsername) {
+                        window.currentUser.password = newPassword;
+                        localStorage.setItem('currentUser', JSON.stringify(window.currentUser));
+                    }
+                } else {
+                    showNotification('Kullanıcı bulunamadı!', 'error');
+                }
+            } catch (e) {
+                console.error("Şifre sıfırlanırken hata oluştu:", e);
+                showNotification("Şifre sıfırlanırken hata oluştu!", "error");
+            } finally {
+                toggleButtonState('resetSelectedUserPasswordBtn', false);
+            }
+        };
+
+        /**
+         * Araç ekleme veya düzenleme işlemini yönetir.
+         * Formdaki `currentEditingCarId` değerine göre ekleme veya güncelleme yapar.
+         */
+        window.handleAddOrUpdateCar = async function() {
+            if (!window.firestoreDb || !window.carsCollectionRef) {
+                showNotification("Veritabanı bağlantısı henüz hazır değil.", "error");
+                return;
+            }
+            if (!window.currentUser || (window.currentUser.role !== 'user' && window.currentUser.role !== 'admin')) {
+                showNotification('Bu işlemi yapmaya yetkiniz yok!', 'error');
+                return;
+            }
+
+            const currentEditingCarId = document.getElementById('currentEditingCarId').value;
+
+            const newPlateInput = document.getElementById('newPlate');
+            const customerNameInput = document.getElementById('customerName');
+            const customerPhoneInput = document.getElementById('customerPhone');
+            const carModelInput = document.getElementById('carModel');
+            const serviceTypeInput = document.getElementById('serviceType');
+            const carStatusInput = document.getElementById('carStatus');
+            const estimatedTimeInput = document.getElementById('estimatedTime');
+            const carPriceInput = document.getElementById('carPrice');
+
+            const fields = [
+                { id: 'newPlate', name: 'Plaka', required: true },
+                { id: 'serviceType', name: 'Hizmet Türü', required: true },
+                { id: 'carStatus', name: 'Durum', required: true },
+                { id: 'customerName', name: 'Müşteri Adı', required: false },
+                { id: 'customerPhone', name: 'Telefon', required: false, type: 'phone' },
+                { id: 'carModel', name: 'Araç Modeli', required: false },
+                { id: 'estimatedTime', name: 'Tahmini Süre', required: false, type: 'number', min: 1 },
+                { id: 'carPrice', name: 'Fiyat', required: false, type: 'number', min: 0 }
+            ];
+
+            if (!validateForm(fields)) {
+                showNotification('Lütfen tüm zorunlu alanları doldurun ve diğerlerini doğru formatta girin!', 'error');
+                return;
+            }
+
+            const carData = {
+                plate: newPlateInput.value.trim().toUpperCase(),
+                customer: customerNameInput.value.trim() || null, // Boşsa null kaydet
+                phone: customerPhoneInput.value.trim() || null, // Boşsa null kaydet
+                model: carModelInput.value.trim() || null, // Boşsa null kaydet
+                serviceType: serviceTypeInput.value,
+                status: carStatusInput.value,
+                addedBy: window.currentUser ? window.currentUser.username : 'Unknown',
+                estimatedTime: estimatedTimeInput.value ? parseInt(estimatedTimeInput.value) : null,
+                currentProgress: (carStatusInput.value === 'delivered' || carStatusInput.value === 'parkingArea') ? 100 : 0, // İlerleme durumunu güncelle
+                price: carPriceInput.value ? parseFloat(carPriceInput.value) : null
+            };
+
+            toggleButtonState('submitCarBtn', true); // Butonu devre dışı bırak
+            toggleButtonState('cancelCarEditBtn', true);
+            showNotification('İşlem yapılıyor...', 'info');
+            try {
+                if (currentEditingCarId) {
+                    // Düzenleme işlemi
+                    const carRef = doc(window.firestoreDb, window.carsCollectionRef.path, currentEditingCarId);
+                    await updateDoc(carRef, carData);
+                    showNotification(`'${carData.plate}' plakalı araç başarıyla güncellendi!`, 'success');
+                } else {
+                    // Ekleme işlemi
+                    // Plakanın zaten var olup olmadığını Firestore'da kontrol et
+                    const q = query(window.carsCollectionRef, where("plate", "==", carData.plate));
+                    const querySnapshot = await getDocs(q);
+                    if (!querySnapshot.empty) {
+                        showNotification('Bu plaka numarası zaten kayıtlı!', 'error');
+                        newPlateInput.classList.add('is-invalid');
+                        document.getElementById('errorNewPlate').textContent = 'Bu plaka numarası zaten kayıtlı.';
+                        return; // İşlemi durdur
+                    }
+                    carData.entryTime = new Date().toISOString(); // Yeni araç için giriş zamanı
+                    await addDoc(window.carsCollectionRef, carData);
+                    showNotification(`'${carData.plate}' plakalı araç başarıyla eklendi!`, 'success');
+                }
+                cancelCarEdit(); // Formu temizle ve ekleme moduna dön
+            } catch (e) {
+                console.error("Araç işlemi sırasında hata oluştu:", e);
+                showNotification("Araç işlemi sırasında hata oluştu!", "error");
+            } finally {
+                toggleButtonState('submitCarBtn', false); // Butonu tekrar etkinleştir
+                toggleButtonState('cancelCarEditBtn', false);
+            }
+        };
+
+        /**
+         * Bir aracı düzenlemek için formu doldurur.
+         * @param {string} carId - Düzenlenecek aracın Firestore Belge ID'si.
+         */
+        window.editCar = function(carId) {
+            const car = window.cars.find(c => c.id === carId);
+            if (!car) {
+                showNotification('Düzenlenecek araç bulunamadı!', 'error');
+                return;
+            }
+
+            document.getElementById('currentEditingCarId').value = car.id;
+            document.getElementById('carFormTitle').innerHTML = '<i class="fa-solid fa-edit"></i> Araç Düzenle';
+            document.getElementById('submitCarBtn').innerHTML = '<i class="fa-solid fa-save"></i> Aracı Güncelle';
+            document.getElementById('cancelCarEditBtn').style.display = 'inline-flex'; // Butonu göster
+
+            document.getElementById('newPlate').value = car.plate;
+            document.getElementById('customerName').value = car.customer || '';
+            document.getElementById('customerPhone').value = car.phone || '';
+            document.getElementById('carModel').value = car.model || '';
+            document.getElementById('serviceType').value = car.serviceType;
+            document.getElementById('carStatus').value = car.status;
+            document.getElementById('estimatedTime').value = car.estimatedTime || '';
+            document.getElementById('carPrice').value = car.price || '';
+
+            // Form validasyon hatalarını temizle
+            document.querySelectorAll('#employeeScreen .error-message').forEach(el => el.textContent = '');
+            document.querySelectorAll('#employeeScreen input, #employeeScreen select').forEach(el => el.classList.remove('is-invalid'));
+
+            // Sayfanın en üstüne kaydır
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        /**
+         * Araç ekleme/düzenleme formunu temizler ve ekleme moduna döner.
+         */
+        window.cancelCarEdit = function() {
+            document.getElementById('currentEditingCarId').value = '';
+            document.getElementById('carFormTitle').innerHTML = '<i class="fa-solid fa-car-plus"></i> Yeni Araç Ekle';
+            document.getElementById('submitCarBtn').innerHTML = '<i class="fa-solid fa-car-rear"></i> Araç Ekle';
+            document.getElementById('cancelCarEditBtn').style.display = 'none';
+
+            document.getElementById('newPlate').value = '';
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('carModel').value = '';
+            document.getElementById('serviceType').value = 'Dış Yıkama';
+            document.getElementById('carStatus').value = 'inQueue'; // Varsayılan başlangıç durumu
+            document.getElementById('estimatedTime').value = '';
+            document.getElementById('carPrice').value = '';
+
+            // Form validasyon hatalarını temizle
+            document.querySelectorAll('#employeeScreen .error-message').forEach(el => el.textContent = '');
+            document.querySelectorAll('#employeeScreen input, #employeeScreen select').forEach(el => el.classList.remove('is-invalid'));
+        };
+
+        /**
+         * Belirli bir aracın durumunu günceller.
+         * @param {string} carId - Güncellenecek aracın Firestore Belge ID'si.
+         * @param {string} newStatus - Yeni durum (inQueue, exteriorWash, dryingArea, parkingArea, delivered).
+         */
+        window.updateCarStatus = async function(carId, newStatus) {
+            if (!window.firestoreDb || !window.carsCollectionRef) {
+                showNotification("Veritabanı bağlantısı henüz hazır değil.", "error");
+                return;
+            }
+            if (!window.currentUser || (window.currentUser.role !== 'user' && window.currentUser.role !== 'admin')) {
+                showNotification('Durum güncelleme yetkiniz yok!', 'error');
+                return;
+            }
+
+            const carRef = doc(window.firestoreDb, window.carsCollectionRef.path, carId);
+            const carData = window.cars.find(car => car.id === carId); 
+
+            if (!carData) {
+                showNotification('Güncellenecek araç bulunamadı!', 'error');
+                return;
+            }
+
+            // Butonları ve ilgili UI'ları devre dışı bırak
+            document.querySelectorAll(`.status-btn[onclick*="updateCarStatus('${carId}'"]`).forEach(btn => btn.disabled = true);
+            showNotification('Durum güncelleniyor...', 'info');
+
+            try {
+                await updateDoc(carRef, {
+                    status: newStatus,
+                    // Duruma göre ilerleme ayarı (örn: Teslim edildi %100, diğerleri 0)
+                    currentProgress: (newStatus === 'delivered' || newStatus === 'parkingArea') ? 100 : 0, 
+                });
+                // Türkçe karşılığını almak için statusMap kullan
+                const statusMapTurkish = {
+                    'inQueue': 'Sırada',
+                    'exteriorWash': 'Dış Yıkamada',
+                    'dryingArea': 'Kurulama Alanında',
+                    'parkingArea': 'Park Alanında',
+                    'delivered': 'Teslim Edildi'
+                };
+                const displayStatus = statusMapTurkish[newStatus] || capitalizeFirstLetter(newStatus);
+
+                showNotification(`'${carData.plate}' plakalı aracın durumu '${displayStatus}' olarak güncellendi!`, 'success');
+                // Firestore listener otomatik olarak UI'yı güncelleyecektir.
+            } catch (e) {
+                console.error("Araç durumu güncellenirken hata oluştu:", e);
+                showNotification("Araç durumu güncellenirken hata oluştu!", "error");
+            } finally {
+                // Tüm ilgili butonları tekrar etkinleştir
+                document.querySelectorAll(`.status-btn[onclick*="updateCarStatus('${carId}'"]`).forEach(btn => btn.disabled = false);
+            }
+        };
+
+        /**
+         * Sistemi bir aracı siler (Sadece Admin).
+         * @param {string} carId - Silinecek aracın Firestore Belge ID'si.
+         */
+        window.deleteCar = async function(carId) {
+            if (!window.firestoreDb || !window.carsCollectionRef) {
+                showNotification("Veritabanı bağlantısı henüz hazır değil.", "error");
+                return;
+            }
+            if (!window.currentUser || window.currentUser.role !== 'admin') {
+                showNotification('Sadece adminler araç silebilir!', 'error');
+                return;
+            }
+
+            // NOT: window.confirm yerine özel bir modal kullanılması tavsiye edilir.
+            const userConfirmed = confirm('Bu aracı silmek istediğinizden emin misiniz?'); 
+            if (!userConfirmed) return;
+
+            // Genel bir silme butonu olduğu varsayılırsa toggle yapısı biraz farklı olmalı.
+            // Örneğin, tıklanan karttaki butonu devre dışı bırakmak için daha spesifik bir selector gerekir.
+            showNotification('Araç siliniyor...', 'info');
+
+            try {
+                const carRef = doc(window.firestoreDb, window.carsCollectionRef.path, carId);
+                await deleteDoc(carRef);
+                showNotification('Araç başarıyla silindi!', 'success');
+                // Firestore listener otomatik olarak UI'yı güncelleyecektir.
+            } catch (e) {
+                console.error("Araç silinirken hata oluştu:", e);
+                showNotification("Araç silinirken hata oluştu!", "error");
+            }
+        };
+
+        /**
+         * Çalışan paneli için araç listesini render eder (aksiyon butonları ile).
+         */
+        function renderEmployeeCarList() {
+            renderCars('employeeCarList', window.cars, true, true); // Aksiyon butonları var, çekmece var
+        }
+
+        /**
+         * Günlük raporları oluşturur ve görüntüler.
+         */
+        async function renderReports() {
+            if (!window.firestoreDb) {
+                showNotification("Veritabanı bağlantısı henüz hazır değil.", "error");
+                return;
+            }
+            const todayIstanbul = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' }); 
+
+            // Firestore'dan güncel araçları filtrele (entryTime'a göre)
+            const carsToday = window.cars.filter(car => 
+                new Date(car.entryTime).toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' }) === todayIstanbul
+            );
+
+            document.getElementById('totalCars').textContent = carsToday.length;
+            
+            // Yeni durumları raporlara yansıt
+            document.getElementById('washingCars').textContent = carsToday.filter(car => car.status === 'exteriorWash').length;
+            document.getElementById('readyCars').textContent = carsToday.filter(car => car.status === 'dryingArea').length;
+            document.getElementById('deliveredCars').textContent = carsToday.filter(car => car.status === 'delivered').length;
+            // Diğer durumları da göstermek isterseniz buraya ekleyebilirsiniz (örn: Sırada, Park Alanında)
+
+
+            // Firestore'dan geri bildirimleri filtrele
+            const feedbackToday = window.feedback.filter(f => 
+                new Date(f.timestamp).toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' }) === todayIstanbul
+            );
+            const totalRating = feedbackToday.reduce((sum, f) => sum + f.rating, 0);
+            const avgRating = feedbackToday.length > 0 ? (totalRating / feedbackToday.length).toFixed(1) : '0.0';
+            document.getElementById('avgRating').textContent = avgRating;
+
+            const totalRevenue = carsToday
+                .filter(car => car.status === 'delivered' && car.price)
+                .reduce((sum, car) => sum + car.price, 0);
+            document.getElementById('totalRevenue').textContent = `₺${totalRevenue.toLocaleString('tr-TR')}`;
+
+            renderCars('detailedCarList', carsToday, false, true); // Aksiyon butonları yok, çekmece var
+        }
+
+        /**
+         * Basit bir benzersiz ID oluşturur (Firestore kendi ID'lerini kullanacak olsa da bu demo için duruyor).
+         */
+        function generateUniqueId() {
+             return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+        }
+
+        /**
+         * ISO string tarihini 'GG.AA.YYYY' formatına dönüştürür.
+         * @param {string} isoString - ISO tarih string'i.
+         * @returns {string} Formatlanmış tarih.
+         */
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Ay 0-indekslidir
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
+        /**
+         * ISO string tarihini 'SS:DD' formatına dönüştürür.
+         * @param {string} isoString - ISO tarih string'i.
+         * @returns {string} Formatlanmış saat.
+         */
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+        /**
+         * Bir string'in ilk harfini büyük yapar.
+         * @param {string} string - Giriş string'i.
+         * @returns {string} İlk harfi büyük olan string.
+         */
+        function capitalizeFirstLetter(string) {
+            if (!string) return '';
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        /**
+         * Günlük veri temizliğini ve arşivlemesini yapar.
+         * Her yeni gün (TR saati) başladığında Firestore'daki eski verileri arşivler ve ana koleksiyonları temizler.
+         */
+        async function performDailyCleanup() {
+            if (!window.firestoreDb || !window.settingsDocRef || !window.carsCollectionRef || !window.feedbackCollectionRef || !window.historicalCarsCollectionRef || !window.historicalFeedbackCollectionRef) {
+                console.warn("Firestore veya ilgili koleksiyon referansları hazır değil, temizlik yapılamaz.");
+                return;
+            }
+
+            const todayIstanbul = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' }); 
+
+            try {
+                // Son temizleme tarihini Firestore'dan oku
+                const settingsDoc = await getDoc(window.settingsDocRef);
+                const lastCleanupDate = settingsDoc.exists() ? settingsDoc.data().lastCleanupDate : null;
+
+                console.log(`Güncel İstanbul Tarihi: ${todayIstanbul}`);
+                console.log(`Son Temizleme Tarihi (Firestore'dan): ${lastCleanupDate}`);
+
+                if (!lastCleanupDate || todayIstanbul > lastCleanupDate) {
+                    showNotification('Günlük temizlik başlatılıyor...', 'info');
+                    console.log("Yeni gün tespit edildi, günlük temizlik ve arşivleme başlatılıyor.");
+
+                    // Sadece bugünden eski olan araçları al
+                    const oldCarsQuery = query(window.carsCollectionRef, where("entryTime", "<", new Date(todayIstanbul).toISOString()));
+                    const carsSnapshot = await getDocs(oldCarsQuery);
+                    
+                    if (!carsSnapshot.empty) {
+                        const carMovePromises = carsSnapshot.docs.map(async (d) => {
+                            const carData = d.data();
+                            await addDoc(window.historicalCarsCollectionRef, { ...carData, originalId: d.id, archivedAt: new Date().toISOString() }); // Arşive taşı
+                            await deleteDoc(doc(window.firestoreDb, window.carsCollectionRef.path, d.id)); // Orijinalini sil
+                        });
+                        await Promise.all(carMovePromises);
+                        console.log(`${carsSnapshot.size} eski araç kaydı arşivlendi ve silindi.`);
+                    } else {
+                        console.log("Arşivlenecek eski araç kaydı bulunamadı.");
+                    }
+
+                    // Sadece bugünden eski olan geri bildirimleri al
+                    const oldFeedbackQuery = query(window.feedbackCollectionRef, where("timestamp", "<", new Date(todayIstanbul).toISOString()));
+                    const feedbackSnapshot = await getDocs(oldFeedbackQuery);
+
+                    if (!feedbackSnapshot.empty) {
+                        const feedbackMovePromises = feedbackSnapshot.docs.map(async (d) => {
+                            const feedbackData = d.data();
+                            await addDoc(window.historicalFeedbackCollectionRef, { ...feedbackData, originalId: d.id, archivedAt: new Date().toISOString() }); // Arşive taşı
+                            await deleteDoc(doc(window.firestoreDb, window.feedbackCollectionRef.path, d.id)); // Orijinalini sil
+                        });
+                        await Promise.all(feedbackMovePromises);
+                        console.log(`${feedbackSnapshot.size} eski geri bildirim kaydı arşivlendi ve silindi.`);
+                    } else {
+                        console.log("Arşivlenecek eski geri bildirim kaydı bulunamadı.");
+                    }
+                    
+                    // Son temizleme tarihini Firestore'a kaydet
+                    await setDoc(window.settingsDocRef, { lastCleanupDate: todayIstanbul });
+
+                    showNotification('Günlük araç kayıtları ve geri bildirimler temizlendi ve arşivlendi!', 'success');
+                    console.log("Günlük temizlik Firestore üzerinde tamamlandı.");
+                } else {
+                    console.log("Bugün temizlik gerekmiyor.");
+                }
+            } catch (e) {
+                console.error("Günlük temizlik sırasında hata oluştu:", e);
+                showNotification("Günlük temizlik sırasında hata oluştu!", "error");
+            }
+        }
+
+        // Uygulama yüklendiğinde başlatma noktası
+        window.onload = function() {
+            console.log("Window yüklendi. Firebase başlatılıyor...");
+            initializeFirebaseAndAuth(); // Firebase'i başlat ve kimlik doğrulamayı yönet
+        };
+    </script>
+</body>
+</html>
